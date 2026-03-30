@@ -23,6 +23,9 @@ public class AuthController(AppDbContext db, IConfiguration configuration) : Con
         if (user is null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
             return Unauthorized();
 
+        if (!user.IsActive)
+            return Unauthorized();
+
         var token = GenerateJwtToken(user);
         return Ok(new LoginResponse { Token = token });
     }

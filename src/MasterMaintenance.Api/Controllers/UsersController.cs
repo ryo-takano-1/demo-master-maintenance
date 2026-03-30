@@ -119,8 +119,12 @@ public class UsersController(AppDbContext db) : ControllerBase
 
         user.UserName = request.UserName;
         user.Email = request.Email;
-        user.Role = request.Role;
         user.IsActive = request.IsActive;
+
+        // admin 以外はロール変更を無視（権限昇格防止）
+        var currentUserRole = User.FindFirstValue(ClaimTypes.Role);
+        if (currentUserRole == "admin")
+            user.Role = request.Role;
         user.UpdatedAt = DateTime.UtcNow;
 
         if (!string.IsNullOrWhiteSpace(request.Password))
@@ -132,7 +136,7 @@ public class UsersController(AppDbContext db) : ControllerBase
         var changes = new Dictionary<string, string>();
         if (oldUserName != request.UserName) changes["UserName"] = $"{oldUserName}\u2192{request.UserName}";
         if (oldEmail != request.Email) changes["Email"] = $"{oldEmail}\u2192{request.Email}";
-        if (oldRole != request.Role) changes["Role"] = $"{oldRole}\u2192{request.Role}";
+        if (oldRole != user.Role) changes["Role"] = $"{oldRole}\u2192{user.Role}";
         if (oldIsActive != request.IsActive) changes["IsActive"] = $"{oldIsActive}\u2192{request.IsActive}";
         if (!string.IsNullOrWhiteSpace(request.Password)) changes["Password"] = "changed";
 

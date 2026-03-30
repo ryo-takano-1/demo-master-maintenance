@@ -62,6 +62,20 @@ public class AuthControllerTests : IClassFixture<TestWebApplicationFactory>, IDi
     }
 
     [Fact]
+    public async Task Login_WithInactiveUser_Returns401()
+    {
+        // U005（渡辺 健二）は IsActive = false のシードデータ
+        var request = new LoginRequest
+        {
+            Email = "watanabe.kenji@example.com",
+            Password = "Password123!",
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/auth/login", request);
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
     public async Task GetUsers_WithoutToken_Returns401()
     {
         var response = await _client.GetAsync("/api/users");

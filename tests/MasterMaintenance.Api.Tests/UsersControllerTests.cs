@@ -137,4 +137,36 @@ public class UsersControllerTests : IClassFixture<TestWebApplicationFactory>, IA
         var response = await _client.PostAsJsonAsync("/api/users", request);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
+
+    [Fact]
+    public async Task UpdateUser_EditorCannotChangeRole()
+    {
+        // admin クライアントで editor 用テストユーザーを作成
+        var createReq = new CreateUserRequest
+        {
+            Id = "UESC", UserName = "昇格テスト", Email = "escalation-test@example.com",
+            Password = "Pass123!", Role = "viewer", IsActive = true,
+        };
+        await _client.PostAsJsonAsync("/api/users", createReq);
+
+        // editor（田中 花子）で認証されたクライアントを作成
+        using var editorClient = await _factory.CreateAuthenticatedClientAsync("tanaka.hanako@example.com");
+
+        // editor がロールを admin に変更しようとする
+        var updateReq = new UpdateUserRequest
+        {
+            UserName = "昇格テスト",
+            Email = "escalation-test@example.com",
+            Role = "admin",
+            IsActive = true,
+        };
+
+        var response = await editorClient.PutAsJsonAsync("/api/users/UESC", updateReq);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        // ロールが変更されていないことを確認
+        var user = await response.Content.ReadFromJsonAsync<UserResponse>();
+        Assert.NotNull(user);
+        Assert.Equal("viewer", user.Role);
+    }
 }
