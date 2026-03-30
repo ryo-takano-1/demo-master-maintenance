@@ -20,7 +20,9 @@
       "Bash(dotnet tool:*)",
       "Bash(pkill -f \"MasterMaintenance.Api\")",
       "Bash(find C:/devroot/maintenance -name *Test* -type f)",
-      "Bash(taskkill //F //PID 12152)"
+      "Bash(taskkill //F //PID 12152)",
+      "Bash(rm -f src/MasterMaintenance.Api/app.db)",
+      "Bash(dotnet run:*)"
     ]
   }
 }

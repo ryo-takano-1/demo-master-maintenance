@@ -239,7 +239,9 @@
     function parseJwt(t) {
       try {
         const payload = t.split('.')[1];
-        const json = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+        const bin = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+        const bytes = Uint8Array.from(bin, c => c.charCodeAt(0));
+        const json = new TextDecoder().decode(bytes);
         return JSON.parse(json);
       } catch { return null; }
     }
