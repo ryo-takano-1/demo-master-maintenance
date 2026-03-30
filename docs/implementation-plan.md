@@ -47,7 +47,7 @@ c:\devroot\maintenance\
 ### Phase 2: DB & モデル
 
 - EF Core + SQLite セットアップ
-- エンティティ定義（User, Code）
+- エンティティ定義（User, CodeType, Code）
 - マイグレーション作成 & 初期シードデータ投入
 
 ### Phase 3: ユーザーマスタ API
@@ -58,9 +58,10 @@ c:\devroot\maintenance\
 
 ### Phase 4: コードマスタ API
 
+- `CodeTypesController`（コード種別の CRUD）
 - `CodesController`（CRUD + 検索 + ページネーション）
 - 統合テスト
-- フロントエンド改修
+- フロントエンド改修（コード種別の追加・編集・削除をコードマスタ画面内で完結）
 
 ### Phase 5: 認証
 

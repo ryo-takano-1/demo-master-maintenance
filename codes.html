@@ -70,13 +70,18 @@
         <div class="row g-3 align-items-end">
           <div class="col-md-3">
             <label class="form-label">コード種別</label>
-            <select class="form-select form-select-sm">
-              <option value="">すべて</option>
-              <option value="DEPT">部門</option>
-              <option value="ROLE">役職</option>
-              <option value="STATUS">ステータス</option>
-              <option value="REGION">地域</option>
-            </select>
+            <div class="d-flex gap-1">
+              <select class="form-select form-select-sm">
+                <option value="">すべて</option>
+                <option value="DEPT">部門</option>
+                <option value="ROLE">役職</option>
+                <option value="STATUS">ステータス</option>
+                <option value="REGION">地域</option>
+              </select>
+              <button type="button" class="btn btn-outline-secondary btn-sm flex-shrink-0" data-bs-toggle="modal" data-bs-target="#codeTypeModal" title="コード種別の管理">
+                <i class="bi bi-gear"></i>
+              </button>
+            </div>
           </div>
           <div class="col-md-3">
             <label class="form-label">コード値</label>
@@ -274,13 +279,18 @@
           <form>
             <div class="mb-3">
               <label class="form-label required">コード種別</label>
-              <select class="form-select">
-                <option value="">選択してください</option>
-                <option value="DEPT">部門</option>
-                <option value="ROLE">役職</option>
-                <option value="STATUS">ステータス</option>
-                <option value="REGION">地域</option>
-              </select>
+              <div class="d-flex gap-1">
+                <select class="form-select">
+                  <option value="">選択してください</option>
+                  <option value="DEPT">部門</option>
+                  <option value="ROLE">役職</option>
+                  <option value="STATUS">ステータス</option>
+                  <option value="REGION">地域</option>
+                </select>
+                <button type="button" class="btn btn-outline-secondary flex-shrink-0" data-bs-toggle="modal" data-bs-target="#codeTypeModal" title="コード種別の管理">
+                  <i class="bi bi-gear"></i>
+                </button>
+              </div>
             </div>
             <div class="mb-3">
               <label class="form-label required">コード値</label>
@@ -334,6 +344,79 @@
           <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">キャンセル</button>
           <button type="button" class="btn btn-danger btn-sm">
             <i class="bi bi-trash me-1"></i>削除する
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Code Type Management Modal ===== -->
+  <div class="modal fade" id="codeTypeModal" tabindex="-1" aria-labelledby="codeTypeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="codeTypeModalLabel">
+            <i class="bi bi-gear-fill me-2"></i>コード種別の管理
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+        </div>
+        <div class="modal-body">
+          <!-- 追加フォーム -->
+          <div class="d-flex gap-2 mb-3">
+            <input type="text" class="form-control form-control-sm" placeholder="種別キー（例: CATEGORY）">
+            <input type="text" class="form-control form-control-sm" placeholder="表示名（例: カテゴリ）">
+            <button type="button" class="btn btn-primary btn-sm flex-shrink-0">
+              <i class="bi bi-plus-lg"></i>
+            </button>
+          </div>
+          <!-- 一覧 -->
+          <table class="table table-sm table-hover mb-0">
+            <thead>
+              <tr>
+                <th>種別キー</th>
+                <th>表示名</th>
+                <th style="width: 80px;">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>DEPT</td>
+                <td>部門</td>
+                <td>
+                  <button class="btn btn-outline-primary btn-action me-1"><i class="bi bi-pencil-square"></i></button>
+                  <button class="btn btn-outline-danger btn-action"><i class="bi bi-trash"></i></button>
+                </td>
+              </tr>
+              <tr>
+                <td>ROLE</td>
+                <td>役職</td>
+                <td>
+                  <button class="btn btn-outline-primary btn-action me-1"><i class="bi bi-pencil-square"></i></button>
+                  <button class="btn btn-outline-danger btn-action"><i class="bi bi-trash"></i></button>
+                </td>
+              </tr>
+              <tr>
+                <td>STATUS</td>
+                <td>ステータス</td>
+                <td>
+                  <button class="btn btn-outline-primary btn-action me-1"><i class="bi bi-pencil-square"></i></button>
+                  <button class="btn btn-outline-danger btn-action"><i class="bi bi-trash"></i></button>
+                </td>
+              </tr>
+              <tr>
+                <td>REGION</td>
+                <td>地域</td>
+                <td>
+                  <button class="btn btn-outline-primary btn-action me-1"><i class="bi bi-pencil-square"></i></button>
+                  <button class="btn btn-outline-danger btn-action"><i class="bi bi-trash"></i></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="bi bi-x-lg me-1"></i>閉じる
           </button>
         </div>
       </div>
