@@ -1,0 +1,27 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace MasterMaintenance.Api.Models;
+
+/// <summary>コード種別レスポンス DTO</summary>
+public class CodeTypeResponse
+{
+    public int Id { get; set; }
+    public string Key { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+}
+
+/// <summary>コード種別作成リクエスト DTO</summary>
+public class CreateCodeTypeRequest
+{
+    [Required] public string Key { get; set; } = string.Empty;
+    [Required] public string Name { get; set; } = string.Empty;
+}
+
+/// <summary>コード種別更新リクエスト DTO</summary>
+public class UpdateCodeTypeRequest
+{
+    [Required] public string Key { get; set; } = string.Empty;
+    [Required] public string Name { get; set; } = string.Empty;
+}
