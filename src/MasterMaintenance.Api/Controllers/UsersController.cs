@@ -8,12 +8,30 @@ using MasterMaintenance.Api.Models;
 
 namespace MasterMaintenance.Api.Controllers;
 
+/// <summary>
+/// ユーザー情報の CRUD 操作を提供する API コントローラー。
+/// </summary>
+/// <remarks>
+/// <para>認証: JWT Bearer 必須（全エンドポイント）</para>
+/// <para>認可: 閲覧は全ロール、作成・削除は admin のみ、更新は admin + editor</para>
+/// <para>対応画面: index.html（ユーザーマスタ）</para>
+/// </remarks>
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
 public class UsersController(AppDbContext db) : ControllerBase
 {
-    /// <summary>一覧取得（検索 + ページネーション）</summary>
+    /// <summary>
+    /// ユーザー一覧を検索条件付きで取得する。
+    /// </summary>
+    /// <param name="id">ユーザー ID（string?, 部分一致、省略可）</param>
+    /// <param name="userName">ユーザー名（string?, 部分一致、省略可）</param>
+    /// <param name="role">ロール（string?, 完全一致、省略可）</param>
+    /// <param name="page">ページ番号（int, 1始まり、既定: 1）</param>
+    /// <param name="pageSize">1ページあたりの件数（int, 既定: 10）</param>
+    /// <returns>ActionResult&lt;PagedResponse&lt;UserResponse&gt;&gt; — ページネーション付きユーザー一覧</returns>
+    /// <response code="200">検索結果を返す</response>
+    /// <response code="401">未認証</response>
     [HttpGet]
     public async Task<ActionResult<PagedResponse<UserResponse>>> GetUsers(
         [FromQuery] string? id,
@@ -51,7 +69,13 @@ public class UsersController(AppDbContext db) : ControllerBase
         });
     }
 
-    /// <summary>1件取得</summary>
+    /// <summary>
+    /// 指定 ID のユーザーを1件取得する。
+    /// </summary>
+    /// <param name="id">ユーザー ID（string）</param>
+    /// <returns>ActionResult&lt;UserResponse&gt; — ユーザー情報</returns>
+    /// <response code="200">ユーザーを返す</response>
+    /// <response code="404">指定 ID のユーザーが存在しない</response>
     [HttpGet("{id}")]
     public async Task<ActionResult<UserResponse>> GetUser(string id)
     {
@@ -60,7 +84,15 @@ public class UsersController(AppDbContext db) : ControllerBase
         return Ok(ToResponse(user));
     }
 
-    /// <summary>新規作成</summary>
+    /// <summary>
+    /// 新規ユーザーを作成する。
+    /// </summary>
+    /// <param name="request">作成リクエスト（CreateUserRequest）</param>
+    /// <returns>ActionResult&lt;UserResponse&gt; — 作成されたユーザー情報</returns>
+    /// <response code="201">作成成功</response>
+    /// <response code="400">バリデーションエラー</response>
+    /// <response code="403">admin ロール以外</response>
+    /// <response code="409">ID が既に使用されている</response>
     [HttpPost]
     [Authorize(Roles = "admin")]
     public async Task<ActionResult<UserResponse>> CreateUser(CreateUserRequest request)
@@ -103,7 +135,15 @@ public class UsersController(AppDbContext db) : ControllerBase
         return CreatedAtAction(nameof(GetUser), new { id = user.Id }, ToResponse(user));
     }
 
-    /// <summary>更新</summary>
+    /// <summary>
+    /// 指定 ID のユーザーを更新する。admin 以外はロール変更が無視される。
+    /// </summary>
+    /// <param name="id">ユーザー ID（string）</param>
+    /// <param name="request">更新リクエスト（UpdateUserRequest）</param>
+    /// <returns>ActionResult&lt;UserResponse&gt; — 更新後のユーザー情報</returns>
+    /// <response code="200">更新成功</response>
+    /// <response code="403">admin または editor ロール以外</response>
+    /// <response code="404">指定 ID のユーザーが存在しない</response>
     [HttpPut("{id}")]
     [Authorize(Roles = "admin,editor")]
     public async Task<ActionResult<UserResponse>> UpdateUser(string id, UpdateUserRequest request)
@@ -155,7 +195,14 @@ public class UsersController(AppDbContext db) : ControllerBase
         return Ok(ToResponse(user));
     }
 
-    /// <summary>削除</summary>
+    /// <summary>
+    /// 指定 ID のユーザーを削除する。
+    /// </summary>
+    /// <param name="id">ユーザー ID（string）</param>
+    /// <returns>IActionResult — 204 No Content</returns>
+    /// <response code="204">削除成功</response>
+    /// <response code="403">admin ロール以外</response>
+    /// <response code="404">指定 ID のユーザーが存在しない</response>
     [HttpDelete("{id}")]
     [Authorize(Roles = "admin")]
     public async Task<IActionResult> DeleteUser(string id)
@@ -188,6 +235,11 @@ public class UsersController(AppDbContext db) : ControllerBase
         return NoContent();
     }
 
+    /// <summary>
+    /// User エンティティを UserResponse DTO に変換する。
+    /// </summary>
+    /// <param name="u">変換元エンティティ（User）</param>
+    /// <returns>UserResponse — レスポンス DTO</returns>
     private static UserResponse ToResponse(User u) => new()
     {
         Id = u.Id,

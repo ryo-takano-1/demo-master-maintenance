@@ -3,13 +3,31 @@ using MasterMaintenance.Api.Models;
 
 namespace MasterMaintenance.Api.Data;
 
+/// <summary>
+/// アプリケーションの EF Core DbContext。
+/// </summary>
+/// <remarks>
+/// <para>データベース: SQLite（既定: app.db）</para>
+/// <para>OnModelCreating でエンティティ設定とシードデータ投入を行う。</para>
+/// </remarks>
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
+    /// <summary>ユーザーマスタ（DbSet&lt;User&gt;）</summary>
     public DbSet<User> Users => Set<User>();
+
+    /// <summary>コード種別マスタ（DbSet&lt;CodeType&gt;）</summary>
     public DbSet<CodeType> CodeTypes => Set<CodeType>();
+
+    /// <summary>コードマスタ（DbSet&lt;Code&gt;）</summary>
     public DbSet<Code> Codes => Set<Code>();
+
+    /// <summary>操作ログ（DbSet&lt;AuditLog&gt;）</summary>
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
+    /// <summary>
+    /// エンティティの設定とシードデータの投入を行う。
+    /// </summary>
+    /// <param name="modelBuilder">モデルビルダー（ModelBuilder）</param>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -65,6 +83,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         SeedData(modelBuilder);
     }
 
+    /// <summary>
+    /// 初期データ（ユーザー、コード種別、コード）を投入する。
+    /// </summary>
+    /// <param name="modelBuilder">モデルビルダー（ModelBuilder）</param>
     private static void SeedData(ModelBuilder modelBuilder)
     {
         var now = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc);

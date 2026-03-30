@@ -8,12 +8,30 @@ using MasterMaintenance.Api.Models;
 
 namespace MasterMaintenance.Api.Controllers;
 
+/// <summary>
+/// コード情報の CRUD 操作を提供する API コントローラー。
+/// </summary>
+/// <remarks>
+/// <para>認証: JWT Bearer 必須（全エンドポイント）</para>
+/// <para>認可: 閲覧は全ロール、作成・更新・削除は admin + editor</para>
+/// <para>対応画面: codes.html（コードマスタ）</para>
+/// </remarks>
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
 public class CodesController(AppDbContext db) : ControllerBase
 {
-    /// <summary>一覧取得（検索 + ページネーション）</summary>
+    /// <summary>
+    /// コード一覧を検索条件付きで取得する。
+    /// </summary>
+    /// <param name="codeTypeId">コード種別 ID（int?, 完全一致、省略可）</param>
+    /// <param name="value">コード値（string?, 部分一致、省略可）</param>
+    /// <param name="name">コード名（string?, 部分一致、省略可）</param>
+    /// <param name="page">ページ番号（int, 1始まり、既定: 1）</param>
+    /// <param name="pageSize">1ページあたりの件数（int, 既定: 10）</param>
+    /// <returns>ActionResult&lt;PagedResponse&lt;CodeResponse&gt;&gt; — ページネーション付きコード一覧</returns>
+    /// <response code="200">検索結果を返す</response>
+    /// <response code="401">未認証</response>
     [HttpGet]
     public async Task<ActionResult<PagedResponse<CodeResponse>>> GetCodes(
         [FromQuery] int? codeTypeId,
@@ -52,7 +70,13 @@ public class CodesController(AppDbContext db) : ControllerBase
         });
     }
 
-    /// <summary>1件取得</summary>
+    /// <summary>
+    /// 指定 ID のコードを1件取得する。
+    /// </summary>
+    /// <param name="id">コード ID（int）</param>
+    /// <returns>ActionResult&lt;CodeResponse&gt; — コード情報</returns>
+    /// <response code="200">コードを返す</response>
+    /// <response code="404">指定 ID のコードが存在しない</response>
     [HttpGet("{id}")]
     public async Task<ActionResult<CodeResponse>> GetCode(int id)
     {
@@ -61,7 +85,14 @@ public class CodesController(AppDbContext db) : ControllerBase
         return Ok(ToResponse(code));
     }
 
-    /// <summary>新規作成</summary>
+    /// <summary>
+    /// 新規コードを作成する。コード種別の存在チェックを行う。
+    /// </summary>
+    /// <param name="request">作成リクエスト（CreateCodeRequest）</param>
+    /// <returns>ActionResult&lt;CodeResponse&gt; — 作成されたコード情報</returns>
+    /// <response code="201">作成成功</response>
+    /// <response code="400">コード種別が存在しない、またはバリデーションエラー</response>
+    /// <response code="403">admin または editor ロール以外</response>
     [HttpPost]
     [Authorize(Roles = "admin,editor")]
     public async Task<ActionResult<CodeResponse>> CreateCode(CreateCodeRequest request)
@@ -108,7 +139,16 @@ public class CodesController(AppDbContext db) : ControllerBase
         return CreatedAtAction(nameof(GetCode), new { id = code.Id }, ToResponse(code));
     }
 
-    /// <summary>更新</summary>
+    /// <summary>
+    /// 指定 ID のコードを更新する。コード種別変更時は存在チェックを行う。
+    /// </summary>
+    /// <param name="id">コード ID（int）</param>
+    /// <param name="request">更新リクエスト（UpdateCodeRequest）</param>
+    /// <returns>ActionResult&lt;CodeResponse&gt; — 更新後のコード情報</returns>
+    /// <response code="200">更新成功</response>
+    /// <response code="400">コード種別が存在しない</response>
+    /// <response code="403">admin または editor ロール以外</response>
+    /// <response code="404">指定 ID のコードが存在しない</response>
     [HttpPut("{id}")]
     [Authorize(Roles = "admin,editor")]
     public async Task<ActionResult<CodeResponse>> UpdateCode(int id, UpdateCodeRequest request)
@@ -164,7 +204,14 @@ public class CodesController(AppDbContext db) : ControllerBase
         return Ok(ToResponse(code));
     }
 
-    /// <summary>削除</summary>
+    /// <summary>
+    /// 指定 ID のコードを削除する。
+    /// </summary>
+    /// <param name="id">コード ID（int）</param>
+    /// <returns>IActionResult — 204 No Content</returns>
+    /// <response code="204">削除成功</response>
+    /// <response code="403">admin または editor ロール以外</response>
+    /// <response code="404">指定 ID のコードが存在しない</response>
     [HttpDelete("{id}")]
     [Authorize(Roles = "admin,editor")]
     public async Task<IActionResult> DeleteCode(int id)
@@ -197,6 +244,11 @@ public class CodesController(AppDbContext db) : ControllerBase
         return NoContent();
     }
 
+    /// <summary>
+    /// Code エンティティを CodeResponse DTO に変換する。
+    /// </summary>
+    /// <param name="c">変換元エンティティ（Code, CodeType を Include 済み）</param>
+    /// <returns>CodeResponse — レスポンス DTO</returns>
     private static CodeResponse ToResponse(Code c) => new()
     {
         Id = c.Id,

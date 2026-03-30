@@ -8,12 +8,25 @@ using MasterMaintenance.Api.Models;
 
 namespace MasterMaintenance.Api.Controllers;
 
+/// <summary>
+/// コード種別の CRUD 操作を提供する API コントローラー。
+/// </summary>
+/// <remarks>
+/// <para>認証: JWT Bearer 必須（全エンドポイント）</para>
+/// <para>認可: 閲覧は全ロール、作成・更新・削除は admin + editor</para>
+/// <para>対応画面: codes.html（コードマスタ内のコード種別管理モーダル）</para>
+/// </remarks>
 [ApiController]
 [Route("api/code-types")]
 [Authorize]
 public class CodeTypesController(AppDbContext db) : ControllerBase
 {
-    /// <summary>全件取得</summary>
+    /// <summary>
+    /// コード種別を全件取得する（ページネーションなし）。
+    /// </summary>
+    /// <returns>ActionResult&lt;List&lt;CodeTypeResponse&gt;&gt; — コード種別一覧</returns>
+    /// <response code="200">全件を返す</response>
+    /// <response code="401">未認証</response>
     [HttpGet]
     public async Task<ActionResult<List<CodeTypeResponse>>> GetCodeTypes()
     {
@@ -25,7 +38,13 @@ public class CodeTypesController(AppDbContext db) : ControllerBase
         return Ok(items);
     }
 
-    /// <summary>1件取得</summary>
+    /// <summary>
+    /// 指定 ID のコード種別を1件取得する。
+    /// </summary>
+    /// <param name="id">コード種別 ID（int）</param>
+    /// <returns>ActionResult&lt;CodeTypeResponse&gt; — コード種別情報</returns>
+    /// <response code="200">コード種別を返す</response>
+    /// <response code="404">指定 ID のコード種別が存在しない</response>
     [HttpGet("{id}")]
     public async Task<ActionResult<CodeTypeResponse>> GetCodeType(int id)
     {
@@ -34,7 +53,15 @@ public class CodeTypesController(AppDbContext db) : ControllerBase
         return Ok(ToResponse(codeType));
     }
 
-    /// <summary>新規作成</summary>
+    /// <summary>
+    /// 新規コード種別を作成する。キーの重複チェックを行う。
+    /// </summary>
+    /// <param name="request">作成リクエスト（CreateCodeTypeRequest）</param>
+    /// <returns>ActionResult&lt;CodeTypeResponse&gt; — 作成されたコード種別情報</returns>
+    /// <response code="201">作成成功</response>
+    /// <response code="400">バリデーションエラー</response>
+    /// <response code="403">admin または editor ロール以外</response>
+    /// <response code="409">キーが既に使用されている</response>
     [HttpPost]
     [Authorize(Roles = "admin,editor")]
     public async Task<ActionResult<CodeTypeResponse>> CreateCodeType(CreateCodeTypeRequest request)
@@ -71,7 +98,16 @@ public class CodeTypesController(AppDbContext db) : ControllerBase
         return CreatedAtAction(nameof(GetCodeType), new { id = codeType.Id }, ToResponse(codeType));
     }
 
-    /// <summary>更新</summary>
+    /// <summary>
+    /// 指定 ID のコード種別を更新する。キーの重複チェック（自分自身を除く）を行う。
+    /// </summary>
+    /// <param name="id">コード種別 ID（int）</param>
+    /// <param name="request">更新リクエスト（UpdateCodeTypeRequest）</param>
+    /// <returns>ActionResult&lt;CodeTypeResponse&gt; — 更新後のコード種別情報</returns>
+    /// <response code="200">更新成功</response>
+    /// <response code="403">admin または editor ロール以外</response>
+    /// <response code="404">指定 ID のコード種別が存在しない</response>
+    /// <response code="409">キーが既に使用されている</response>
     [HttpPut("{id}")]
     [Authorize(Roles = "admin,editor")]
     public async Task<ActionResult<CodeTypeResponse>> UpdateCodeType(int id, UpdateCodeTypeRequest request)
@@ -116,7 +152,15 @@ public class CodeTypesController(AppDbContext db) : ControllerBase
         return Ok(ToResponse(codeType));
     }
 
-    /// <summary>削除（使用中のコード種別は削除不可）</summary>
+    /// <summary>
+    /// 指定 ID のコード種別を削除する。使用中（配下のコードが存在する）場合は削除不可。
+    /// </summary>
+    /// <param name="id">コード種別 ID（int）</param>
+    /// <returns>IActionResult — 204 No Content</returns>
+    /// <response code="204">削除成功</response>
+    /// <response code="403">admin または editor ロール以外</response>
+    /// <response code="404">指定 ID のコード種別が存在しない</response>
+    /// <response code="409">使用中のため削除不可</response>
     [HttpDelete("{id}")]
     [Authorize(Roles = "admin,editor")]
     public async Task<IActionResult> DeleteCodeType(int id)
@@ -151,6 +195,11 @@ public class CodeTypesController(AppDbContext db) : ControllerBase
         return NoContent();
     }
 
+    /// <summary>
+    /// CodeType エンティティを CodeTypeResponse DTO に変換する。
+    /// </summary>
+    /// <param name="ct">変換元エンティティ（CodeType）</param>
+    /// <returns>CodeTypeResponse — レスポンス DTO</returns>
     private static CodeTypeResponse ToResponse(CodeType ct) => new()
     {
         Id = ct.Id,

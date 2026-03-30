@@ -10,12 +10,25 @@ using MasterMaintenance.Api.Models;
 
 namespace MasterMaintenance.Api.Controllers;
 
+/// <summary>
+/// 認証を提供する API コントローラー。
+/// </summary>
+/// <remarks>
+/// <para>認証: 不要（AllowAnonymous）</para>
+/// <para>対応画面: login.html（ログイン）</para>
+/// </remarks>
 [ApiController]
 [Route("api/[controller]")]
 [AllowAnonymous]
 public class AuthController(AppDbContext db, IConfiguration configuration) : ControllerBase
 {
-    /// <summary>ログイン</summary>
+    /// <summary>
+    /// メールアドレスとパスワードで認証し、JWT トークンを発行する。
+    /// </summary>
+    /// <param name="request">ログイン情報（LoginRequest）</param>
+    /// <returns>ActionResult&lt;LoginResponse&gt; — JWT トークンを含むレスポンス</returns>
+    /// <response code="200">認証成功、トークンを返す</response>
+    /// <response code="401">メールアドレスまたはパスワードが不正、またはユーザーが無効</response>
     [HttpPost("login")]
     public async Task<ActionResult<LoginResponse>> Login(LoginRequest request)
     {
@@ -30,6 +43,11 @@ public class AuthController(AppDbContext db, IConfiguration configuration) : Con
         return Ok(new LoginResponse { Token = token });
     }
 
+    /// <summary>
+    /// 指定ユーザーの JWT トークンを生成する。
+    /// </summary>
+    /// <param name="user">トークン発行対象のユーザー（User）</param>
+    /// <returns>string — JWT トークン文字列</returns>
     private string GenerateJwtToken(User user)
     {
         var jwtSettings = configuration.GetSection("Jwt");
