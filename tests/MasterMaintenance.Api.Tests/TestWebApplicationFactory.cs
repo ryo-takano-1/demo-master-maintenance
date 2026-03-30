@@ -56,14 +56,18 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
         return host;
     }
 
-    /// <summary>認証済みの HttpClient を作成する</summary>
-    public async Task<HttpClient> CreateAuthenticatedClientAsync()
+    /// <summary>認証済みの HttpClient を作成する（admin: sato.taro@example.com）</summary>
+    public Task<HttpClient> CreateAuthenticatedClientAsync()
+        => CreateAuthenticatedClientAsync("sato.taro@example.com");
+
+    /// <summary>指定メールアドレスのユーザーで認証済みの HttpClient を作成する</summary>
+    public async Task<HttpClient> CreateAuthenticatedClientAsync(string email)
     {
         var client = CreateClient();
 
         var loginRequest = new LoginRequest
         {
-            Email = "sato.taro@example.com",
+            Email = email,
             Password = "Password123!",
         };
 

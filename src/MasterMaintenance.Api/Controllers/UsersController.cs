@@ -60,6 +60,7 @@ public class UsersController(AppDbContext db) : ControllerBase
 
     /// <summary>新規作成</summary>
     [HttpPost]
+    [Authorize(Roles = "admin")]
     public async Task<ActionResult<UserResponse>> CreateUser(CreateUserRequest request)
     {
         if (await db.Users.AnyAsync(u => u.Id == request.Id))
@@ -86,6 +87,7 @@ public class UsersController(AppDbContext db) : ControllerBase
 
     /// <summary>更新</summary>
     [HttpPut("{id}")]
+    [Authorize(Roles = "admin,editor")]
     public async Task<ActionResult<UserResponse>> UpdateUser(string id, UpdateUserRequest request)
     {
         var user = await db.Users.FindAsync(id);
@@ -107,6 +109,7 @@ public class UsersController(AppDbContext db) : ControllerBase
 
     /// <summary>削除</summary>
     [HttpDelete("{id}")]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> DeleteUser(string id)
     {
         var user = await db.Users.FindAsync(id);

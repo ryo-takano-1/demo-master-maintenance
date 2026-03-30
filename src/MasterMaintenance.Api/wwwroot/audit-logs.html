@@ -23,10 +23,10 @@
         <i class="bi bi-gear-fill me-1"></i>マスタメンテナンス
       </a>
       <div class="ms-auto d-flex align-items-center">
-        <span class="text-light small me-2">
-          <i class="bi bi-person-circle me-1"></i>管理者ユーザー
+        <span class="text-light small me-2" id="currentUserName">
+          <i class="bi bi-person-circle me-1"></i>
         </span>
-        <a href="#" class="btn btn-outline-light btn-sm">
+        <a href="#" class="btn btn-outline-light btn-sm" id="btnLogout">
           <i class="bi bi-box-arrow-right"></i> ログアウト
         </a>
       </div>
@@ -204,6 +204,48 @@
 
   <!-- Bootstrap 5 JS Bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Auth Script -->
+  <script>
+    // --- トークン管理 ---
+    const token = localStorage.getItem('token');
+    if (!token) { location.href = 'login.html'; }
+
+    function parseJwt(t) {
+      try {
+        const payload = t.split('.')[1];
+        const json = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+        return JSON.parse(json);
+      } catch { return null; }
+    }
+
+    const claims = parseJwt(token);
+    if (!claims) { localStorage.removeItem('token'); location.href = 'login.html'; }
+
+    // ユーザー名表示
+    const userName = claims['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || '';
+    const userRole = claims['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || '';
+    document.getElementById('currentUserName').innerHTML =
+      '<i class="bi bi-person-circle me-1"></i>' + userName;
+
+    // ログアウト
+    document.getElementById('btnLogout').addEventListener('click', function (e) {
+      e.preventDefault();
+      localStorage.removeItem('token');
+      location.href = 'login.html';
+    });
+
+    // 認証付き fetch ラッパー
+    async function authFetch(url, options = {}) {
+      options.headers = options.headers || {};
+      options.headers['Authorization'] = 'Bearer ' + token;
+      const res = await fetch(url, options);
+      if (res.status === 401) {
+        localStorage.removeItem('token');
+        location.href = 'login.html';
+      }
+      return res;
+    }
+  </script>
   <!-- Sidebar Toggle (minimal JS for design) -->
   <script>
     document.getElementById('sidebarToggle').addEventListener('click', function () {

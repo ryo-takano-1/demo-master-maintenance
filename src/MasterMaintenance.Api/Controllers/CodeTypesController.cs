@@ -34,6 +34,7 @@ public class CodeTypesController(AppDbContext db) : ControllerBase
 
     /// <summary>新規作成</summary>
     [HttpPost]
+    [Authorize(Roles = "admin,editor")]
     public async Task<ActionResult<CodeTypeResponse>> CreateCodeType(CreateCodeTypeRequest request)
     {
         if (await db.CodeTypes.AnyAsync(ct => ct.Key == request.Key))
@@ -56,6 +57,7 @@ public class CodeTypesController(AppDbContext db) : ControllerBase
 
     /// <summary>更新</summary>
     [HttpPut("{id}")]
+    [Authorize(Roles = "admin,editor")]
     public async Task<ActionResult<CodeTypeResponse>> UpdateCodeType(int id, UpdateCodeTypeRequest request)
     {
         var codeType = await db.CodeTypes.FindAsync(id);
@@ -76,6 +78,7 @@ public class CodeTypesController(AppDbContext db) : ControllerBase
 
     /// <summary>削除（使用中のコード種別は削除不可）</summary>
     [HttpDelete("{id}")]
+    [Authorize(Roles = "admin,editor")]
     public async Task<IActionResult> DeleteCodeType(int id)
     {
         var codeType = await db.CodeTypes.FindAsync(id);

@@ -23,10 +23,10 @@
         <i class="bi bi-gear-fill me-1"></i>マスタメンテナンス
       </a>
       <div class="ms-auto d-flex align-items-center">
-        <span class="text-light small me-2">
-          <i class="bi bi-person-circle me-1"></i>管理者ユーザー
+        <span class="text-light small me-2" id="currentUserName">
+          <i class="bi bi-person-circle me-1"></i>
         </span>
-        <a href="#" class="btn btn-outline-light btn-sm">
+        <a href="#" class="btn btn-outline-light btn-sm" id="btnLogout">
           <i class="bi bi-box-arrow-right"></i> ログアウト
         </a>
       </div>
@@ -230,6 +230,59 @@
       document.getElementById('main-content').classList.toggle('expanded');
     });
   </script>
+  <!-- Auth Script -->
+  <script>
+    // --- トークン管理 ---
+    const token = localStorage.getItem('token');
+    if (!token) { location.href = 'login.html'; }
+
+    function parseJwt(t) {
+      try {
+        const payload = t.split('.')[1];
+        const json = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+        return JSON.parse(json);
+      } catch { return null; }
+    }
+
+    const claims = parseJwt(token);
+    if (!claims) { localStorage.removeItem('token'); location.href = 'login.html'; }
+
+    // ユーザー名表示
+    const userName = claims['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || '';
+    const userRole = claims['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || '';
+    document.getElementById('currentUserName').innerHTML =
+      '<i class="bi bi-person-circle me-1"></i>' + userName;
+
+    // ログアウト
+    document.getElementById('btnLogout').addEventListener('click', function (e) {
+      e.preventDefault();
+      localStorage.removeItem('token');
+      location.href = 'login.html';
+    });
+
+    // 認証付き fetch ラッパー
+    async function authFetch(url, options = {}) {
+      options.headers = options.headers || {};
+      options.headers['Authorization'] = 'Bearer ' + token;
+      const res = await fetch(url, options);
+      if (res.status === 401) {
+        localStorage.removeItem('token');
+        location.href = 'login.html';
+      }
+      return res;
+    }
+
+    // --- ロールベース UI 制御 ---
+    (function () {
+      if (userRole === 'viewer') {
+        // 新規追加ボタンを非表示
+        document.getElementById('btnAddUser').style.display = 'none';
+      } else if (userRole === 'editor') {
+        // editor はユーザーの新規追加を非表示
+        document.getElementById('btnAddUser').style.display = 'none';
+      }
+    })();
+  </script>
   <!-- User CRUD Script -->
   <script>
     const API_BASE = '/api/users';
@@ -272,7 +325,7 @@
       params.set('pageSize', pageSize);
 
       try {
-        const res = await fetch(API_BASE + '?' + params.toString());
+        const res = await authFetch(API_BASE + '?' + params.toString());
         if (!res.ok) throw new Error('データの取得に失敗しました。');
         const data = await res.json();
         renderTable(data);
@@ -290,23 +343,23 @@
         tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">データがありません</td></tr>';
         return;
       }
-      tbody.innerHTML = data.items.map(u => `
-        <tr>
+      tbody.innerHTML = data.items.map(u => {
+        let actions = '';
+        if (userRole === 'admin' || userRole === 'editor') {
+          actions += `<button class="btn btn-outline-primary btn-action me-1" onclick="openEditModal('${u.id}')"><i class="bi bi-pencil-square"></i></button>`;
+        }
+        if (userRole === 'admin') {
+          actions += `<button class="btn btn-outline-danger btn-action" onclick="openDeleteModal('${u.id}')"><i class="bi bi-trash"></i></button>`;
+        }
+        return `<tr>
           <td>${u.id}</td>
           <td>${u.userName}</td>
           <td>${u.email}</td>
           <td>${roleBadge(u.role)}</td>
           <td>${statusBadge(u.isActive)}</td>
-          <td>
-            <button class="btn btn-outline-primary btn-action me-1" onclick="openEditModal('${u.id}')">
-              <i class="bi bi-pencil-square"></i>
-            </button>
-            <button class="btn btn-outline-danger btn-action" onclick="openDeleteModal('${u.id}')">
-              <i class="bi bi-trash"></i>
-            </button>
-          </td>
-        </tr>
-      `).join('');
+          <td>${actions}</td>
+        </tr>`;
+      }).join('');
     }
 
     // --- 件数表示 ---
@@ -361,7 +414,7 @@
     // --- 編集モーダル ---
     async function openEditModal(id) {
       try {
-        const res = await fetch(API_BASE + '/' + id);
+        const res = await authFetch(API_BASE + '/' + id);
         if (!res.ok) throw new Error('ユーザー情報の取得に失敗しました。');
         const user = await res.json();
 
@@ -396,13 +449,13 @@
       try {
         let res;
         if (mode === 'create') {
-          res = await fetch(API_BASE, {
+          res = await authFetch(API_BASE, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id, userName, email, password, role, isActive }),
           });
         } else {
-          res = await fetch(API_BASE + '/' + id, {
+          res = await authFetch(API_BASE + '/' + id, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userName, email, password: password || null, role, isActive }),
@@ -430,7 +483,7 @@
     document.getElementById('btnConfirmDelete').addEventListener('click', async function () {
       if (!deleteTargetId) return;
       try {
-        const res = await fetch(API_BASE + '/' + deleteTargetId, { method: 'DELETE' });
+        const res = await authFetch(API_BASE + '/' + deleteTargetId, { method: 'DELETE' });
         if (!res.ok) throw new Error('削除に失敗しました。');
         deleteModal.hide();
         loadUsers(currentPage);

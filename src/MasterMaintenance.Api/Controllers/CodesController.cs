@@ -61,6 +61,7 @@ public class CodesController(AppDbContext db) : ControllerBase
 
     /// <summary>新規作成</summary>
     [HttpPost]
+    [Authorize(Roles = "admin,editor")]
     public async Task<ActionResult<CodeResponse>> CreateCode(CreateCodeRequest request)
     {
         // コード種別の存在チェック
@@ -91,6 +92,7 @@ public class CodesController(AppDbContext db) : ControllerBase
 
     /// <summary>更新</summary>
     [HttpPut("{id}")]
+    [Authorize(Roles = "admin,editor")]
     public async Task<ActionResult<CodeResponse>> UpdateCode(int id, UpdateCodeRequest request)
     {
         var code = await db.Codes.Include(c => c.CodeType).FirstOrDefaultAsync(c => c.Id == id);
@@ -119,6 +121,7 @@ public class CodesController(AppDbContext db) : ControllerBase
 
     /// <summary>削除</summary>
     [HttpDelete("{id}")]
+    [Authorize(Roles = "admin,editor")]
     public async Task<IActionResult> DeleteCode(int id)
     {
         var code = await db.Codes.FindAsync(id);

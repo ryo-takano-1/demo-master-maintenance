@@ -23,10 +23,10 @@
         <i class="bi bi-gear-fill me-1"></i>マスタメンテナンス
       </a>
       <div class="ms-auto d-flex align-items-center">
-        <span class="text-light small me-2">
-          <i class="bi bi-person-circle me-1"></i>管理者ユーザー
+        <span class="text-light small me-2" id="currentUserName">
+          <i class="bi bi-person-circle me-1"></i>
         </span>
-        <a href="#" class="btn btn-outline-light btn-sm">
+        <a href="#" class="btn btn-outline-light btn-sm" id="btnLogout">
           <i class="bi bi-box-arrow-right"></i> ログアウト
         </a>
       </div>
@@ -233,7 +233,7 @@
         </div>
         <div class="modal-body">
           <!-- 追加/編集フォーム -->
-          <div class="d-flex gap-2 mb-3">
+          <div class="d-flex gap-2 mb-3" id="ctFormArea">
             <input type="hidden" id="ctFormId" value="">
             <input type="text" class="form-control form-control-sm" id="ctFormKey" placeholder="種別キー（例: CATEGORY）">
             <input type="text" class="form-control form-control-sm" id="ctFormName" placeholder="表示名（例: カテゴリ）">
@@ -276,6 +276,57 @@
       document.getElementById('main-content').classList.toggle('expanded');
     });
   </script>
+  <!-- Auth Script -->
+  <script>
+    // --- トークン管理 ---
+    const token = localStorage.getItem('token');
+    if (!token) { location.href = 'login.html'; }
+
+    function parseJwt(t) {
+      try {
+        const payload = t.split('.')[1];
+        const json = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+        return JSON.parse(json);
+      } catch { return null; }
+    }
+
+    const claims = parseJwt(token);
+    if (!claims) { localStorage.removeItem('token'); location.href = 'login.html'; }
+
+    // ユーザー名表示
+    const userName = claims['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || '';
+    const userRole = claims['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || '';
+    document.getElementById('currentUserName').innerHTML =
+      '<i class="bi bi-person-circle me-1"></i>' + userName;
+
+    // ログアウト
+    document.getElementById('btnLogout').addEventListener('click', function (e) {
+      e.preventDefault();
+      localStorage.removeItem('token');
+      location.href = 'login.html';
+    });
+
+    // 認証付き fetch ラッパー
+    async function authFetch(url, options = {}) {
+      options.headers = options.headers || {};
+      options.headers['Authorization'] = 'Bearer ' + token;
+      const res = await fetch(url, options);
+      if (res.status === 401) {
+        localStorage.removeItem('token');
+        location.href = 'login.html';
+      }
+      return res;
+    }
+
+    // --- ロールベース UI 制御 ---
+    (function () {
+      if (userRole === 'viewer') {
+        document.getElementById('btnAddCode').style.display = 'none';
+        // コード種別管理モーダル内のフォームも非表示
+        document.getElementById('ctFormArea').style.display = 'none';
+      }
+    })();
+  </script>
   <!-- Code CRUD Script -->
   <script>
     const CODES_API = '/api/codes';
@@ -309,7 +360,7 @@
 
     async function loadCodeTypes() {
       try {
-        const res = await fetch(CODE_TYPES_API);
+        const res = await authFetch(CODE_TYPES_API);
         if (!res.ok) throw new Error('コード種別の取得に失敗しました。');
         codeTypes = await res.json();
         renderCodeTypeSelects();
@@ -347,7 +398,7 @@
 
     async function loadCodeTypeTable() {
       try {
-        const res = await fetch(CODE_TYPES_API);
+        const res = await authFetch(CODE_TYPES_API);
         if (!res.ok) throw new Error('コード種別の取得に失敗しました。');
         codeTypes = await res.json();
         renderCodeTypeSelects();
@@ -363,20 +414,18 @@
         tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted py-3">データがありません</td></tr>';
         return;
       }
-      tbody.innerHTML = codeTypes.map(ct => `
-        <tr>
+      tbody.innerHTML = codeTypes.map(ct => {
+        let actions = '';
+        if (userRole !== 'viewer') {
+          actions += `<button class="btn btn-outline-primary btn-action me-1" onclick="editCodeType(${ct.id})"><i class="bi bi-pencil-square"></i></button>`;
+          actions += `<button class="btn btn-outline-danger btn-action" onclick="deleteCodeType(${ct.id})"><i class="bi bi-trash"></i></button>`;
+        }
+        return `<tr>
           <td>${ct.key}</td>
           <td>${ct.name}</td>
-          <td>
-            <button class="btn btn-outline-primary btn-action me-1" onclick="editCodeType(${ct.id})">
-              <i class="bi bi-pencil-square"></i>
-            </button>
-            <button class="btn btn-outline-danger btn-action" onclick="deleteCodeType(${ct.id})">
-              <i class="bi bi-trash"></i>
-            </button>
-          </td>
-        </tr>
-      `).join('');
+          <td>${actions}</td>
+        </tr>`;
+      }).join('');
     }
 
     function resetCodeTypeForm() {
@@ -402,13 +451,13 @@
       try {
         let res;
         if (id) {
-          res = await fetch(CODE_TYPES_API + '/' + id, {
+          res = await authFetch(CODE_TYPES_API + '/' + id, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ key, name }),
           });
         } else {
-          res = await fetch(CODE_TYPES_API, {
+          res = await authFetch(CODE_TYPES_API, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ key, name }),
@@ -453,7 +502,7 @@
     async function deleteCodeType(id) {
       if (!confirm('このコード種別を削除してもよろしいですか？')) return;
       try {
-        const res = await fetch(CODE_TYPES_API + '/' + id, { method: 'DELETE' });
+        const res = await authFetch(CODE_TYPES_API + '/' + id, { method: 'DELETE' });
         if (res.status === 409) {
           const err = await res.json().catch(() => null);
           showCtError(err?.message || 'このコード種別は使用中のため削除できません。');
@@ -492,7 +541,7 @@
       params.set('pageSize', pageSize);
 
       try {
-        const res = await fetch(CODES_API + '?' + params.toString());
+        const res = await authFetch(CODES_API + '?' + params.toString());
         if (!res.ok) throw new Error('データの取得に失敗しました。');
         const data = await res.json();
         renderTable(data);
@@ -509,23 +558,21 @@
         tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">データがありません</td></tr>';
         return;
       }
-      tbody.innerHTML = data.items.map(c => `
-        <tr>
+      tbody.innerHTML = data.items.map(c => {
+        let actions = '';
+        if (userRole !== 'viewer') {
+          actions += `<button class="btn btn-outline-primary btn-action me-1" onclick="openEditModal(${c.id})"><i class="bi bi-pencil-square"></i></button>`;
+          actions += `<button class="btn btn-outline-danger btn-action" onclick="openDeleteModal(${c.id})"><i class="bi bi-trash"></i></button>`;
+        }
+        return `<tr>
           <td>${codeTypeBadge(c.codeTypeName)}</td>
           <td>${c.value}</td>
           <td>${c.name}</td>
           <td class="text-center">${c.displayOrder}</td>
           <td>${statusBadge(c.isActive)}</td>
-          <td>
-            <button class="btn btn-outline-primary btn-action me-1" onclick="openEditModal(${c.id})">
-              <i class="bi bi-pencil-square"></i>
-            </button>
-            <button class="btn btn-outline-danger btn-action" onclick="openDeleteModal(${c.id})">
-              <i class="bi bi-trash"></i>
-            </button>
-          </td>
-        </tr>
-      `).join('');
+          <td>${actions}</td>
+        </tr>`;
+      }).join('');
     }
 
     function renderInfoBar(data) {
@@ -572,7 +619,7 @@
     // --- 編集モーダル ---
     async function openEditModal(id) {
       try {
-        const res = await fetch(CODES_API + '/' + id);
+        const res = await authFetch(CODES_API + '/' + id);
         if (!res.ok) throw new Error('コード情報の取得に失敗しました。');
         const code = await res.json();
 
@@ -603,13 +650,13 @@
       try {
         let res;
         if (mode === 'create') {
-          res = await fetch(CODES_API, {
+          res = await authFetch(CODES_API, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ codeTypeId, value, name, displayOrder, isActive }),
           });
         } else {
-          res = await fetch(CODES_API + '/' + id, {
+          res = await authFetch(CODES_API + '/' + id, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ codeTypeId, value, name, displayOrder, isActive }),
@@ -637,7 +684,7 @@
     document.getElementById('btnConfirmDelete').addEventListener('click', async function () {
       if (!deleteTargetId) return;
       try {
-        const res = await fetch(CODES_API + '/' + deleteTargetId, { method: 'DELETE' });
+        const res = await authFetch(CODES_API + '/' + deleteTargetId, { method: 'DELETE' });
         if (!res.ok) throw new Error('削除に失敗しました。');
         deleteModal.hide();
         loadCodes(currentPage);
