@@ -4,18 +4,25 @@ using MasterMaintenance.Api.Models;
 
 namespace MasterMaintenance.Api.Tests;
 
-public class CodesControllerTests : IClassFixture<TestWebApplicationFactory>, IDisposable
+public class CodesControllerTests : IClassFixture<TestWebApplicationFactory>, IAsyncLifetime
 {
-    private readonly HttpClient _client;
+    private readonly TestWebApplicationFactory _factory;
+    private HttpClient _client = null!;
 
     public CodesControllerTests(TestWebApplicationFactory factory)
     {
-        _client = factory.CreateClient();
+        _factory = factory;
     }
 
-    public void Dispose()
+    public async Task InitializeAsync()
+    {
+        _client = await _factory.CreateAuthenticatedClientAsync();
+    }
+
+    public Task DisposeAsync()
     {
         _client.Dispose();
+        return Task.CompletedTask;
     }
 
     [Fact]

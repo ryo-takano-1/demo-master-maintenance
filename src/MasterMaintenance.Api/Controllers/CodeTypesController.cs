@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MasterMaintenance.Api.Data;
@@ -7,6 +8,7 @@ namespace MasterMaintenance.Api.Controllers;
 
 [ApiController]
 [Route("api/code-types")]
+[Authorize]
 public class CodeTypesController(AppDbContext db) : ControllerBase
 {
     /// <summary>全件取得</summary>

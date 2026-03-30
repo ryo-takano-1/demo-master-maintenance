@@ -1,3 +1,5 @@
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
@@ -6,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MasterMaintenance.Api.Data;
+using MasterMaintenance.Api.Models;
 
 namespace MasterMaintenance.Api.Tests;
 
@@ -51,6 +54,27 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
         db.Database.EnsureCreated();
 
         return host;
+    }
+
+    /// <summary>認証済みの HttpClient を作成する</summary>
+    public async Task<HttpClient> CreateAuthenticatedClientAsync()
+    {
+        var client = CreateClient();
+
+        var loginRequest = new LoginRequest
+        {
+            Email = "sato.taro@example.com",
+            Password = "Password123!",
+        };
+
+        var response = await client.PostAsJsonAsync("/api/auth/login", loginRequest);
+        response.EnsureSuccessStatusCode();
+
+        var loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
+        client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", loginResponse!.Token);
+
+        return client;
     }
 
     protected override void Dispose(bool disposing)

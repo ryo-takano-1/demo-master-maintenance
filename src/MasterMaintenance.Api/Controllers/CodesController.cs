@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MasterMaintenance.Api.Data;
@@ -7,6 +8,7 @@ namespace MasterMaintenance.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class CodesController(AppDbContext db) : ControllerBase
 {
     /// <summary>一覧取得（検索 + ページネーション）</summary>
