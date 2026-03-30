@@ -68,8 +68,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     {
         var now = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-        // BCrypt ハッシュ化した "Password123!"
-        var passwordHash = BCrypt.Net.BCrypt.HashPassword("Password123!");
+        // "Password123!" を BCrypt ハッシュ化した固定値（ソルト固定でマイグレーション差分を安定させる）
+        const string passwordHash = "$2a$11$FyEMqRnK/ctDdYDIscFvXeNF4QrUgpv2zq.ligrcYqaAITQepGsK.";
 
         // Users
         modelBuilder.Entity<User>().HasData(

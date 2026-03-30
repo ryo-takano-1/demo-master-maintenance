@@ -12,7 +12,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // JWT 認証設定
+// 秘密鍵は appsettings.json の Jwt:Key をデフォルトとし、
+// 環境変数 Jwt__Key（または Jwt:Key）で上書き可能
 var jwtSettings = builder.Configuration.GetSection("Jwt");
+var jwtKey = jwtSettings["Key"]
+    ?? throw new InvalidOperationException(
+        "JWT signing key is not configured. Set 'Jwt:Key' in appsettings.json or the environment variable 'Jwt__Key'.");
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -29,7 +35,7 @@ builder.Services.AddAuthentication(options =>
         ValidIssuer = jwtSettings["Issuer"],
         ValidAudience = jwtSettings["Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(jwtSettings["Key"]!)),
+            Encoding.UTF8.GetBytes(jwtKey)),
     };
 });
 builder.Services.AddAuthorization();
