@@ -64,7 +64,7 @@
     <!-- Page Header -->
     <div class="page-header">
       <h4><i class="bi bi-people-fill me-2"></i>ユーザーマスタ</h4>
-      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#userModal">
+      <button class="btn btn-primary" id="btnAddUser">
         <i class="bi bi-plus-lg me-1"></i>新規追加
       </button>
     </div>
@@ -75,15 +75,15 @@
         <div class="row g-3 align-items-end">
           <div class="col-md-3">
             <label class="form-label">ユーザーID</label>
-            <input type="text" class="form-control form-control-sm" placeholder="IDで検索">
+            <input type="text" class="form-control form-control-sm" id="searchId" placeholder="IDで検索">
           </div>
           <div class="col-md-3">
             <label class="form-label">ユーザー名</label>
-            <input type="text" class="form-control form-control-sm" placeholder="名前で検索">
+            <input type="text" class="form-control form-control-sm" id="searchUserName" placeholder="名前で検索">
           </div>
           <div class="col-md-3">
             <label class="form-label">権限</label>
-            <select class="form-select form-select-sm">
+            <select class="form-select form-select-sm" id="searchRole">
               <option value="">すべて</option>
               <option value="admin">管理者</option>
               <option value="editor">編集者</option>
@@ -91,10 +91,10 @@
             </select>
           </div>
           <div class="col-md-3">
-            <button type="button" class="btn btn-outline-secondary btn-sm me-1">
+            <button type="button" class="btn btn-outline-secondary btn-sm me-1" id="btnSearch">
               <i class="bi bi-search me-1"></i>検索
             </button>
-            <button type="button" class="btn btn-outline-secondary btn-sm">
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="btnClear">
               <i class="bi bi-arrow-counterclockwise me-1"></i>クリア
             </button>
           </div>
@@ -105,8 +105,8 @@
     <!-- Table -->
     <div class="table-card">
       <div class="table-info-bar">
-        <span>全 <strong>5</strong> 件</span>
-        <span>1 - 5 件を表示</span>
+        <span>全 <strong id="totalCount">0</strong> 件</span>
+        <span id="showingRange">0 件を表示</span>
       </div>
       <div class="table-responsive">
         <table class="table table-striped table-hover">
@@ -120,82 +120,7 @@
               <th style="width: 130px;">操作</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td>U001</td>
-              <td>佐藤 太郎</td>
-              <td>sato.taro@example.com</td>
-              <td><span class="badge bg-danger">管理者</span></td>
-              <td><span class="badge badge-active">有効</span></td>
-              <td>
-                <button class="btn btn-outline-primary btn-action me-1" data-bs-toggle="modal" data-bs-target="#userModal">
-                  <i class="bi bi-pencil-square"></i>
-                </button>
-                <button class="btn btn-outline-danger btn-action" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                  <i class="bi bi-trash"></i>
-                </button>
-              </td>
-            </tr>
-            <tr>
-              <td>U002</td>
-              <td>田中 花子</td>
-              <td>tanaka.hanako@example.com</td>
-              <td><span class="badge bg-warning text-dark">編集者</span></td>
-              <td><span class="badge badge-active">有効</span></td>
-              <td>
-                <button class="btn btn-outline-primary btn-action me-1" data-bs-toggle="modal" data-bs-target="#userModal">
-                  <i class="bi bi-pencil-square"></i>
-                </button>
-                <button class="btn btn-outline-danger btn-action" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                  <i class="bi bi-trash"></i>
-                </button>
-              </td>
-            </tr>
-            <tr>
-              <td>U003</td>
-              <td>鈴木 一郎</td>
-              <td>suzuki.ichiro@example.com</td>
-              <td><span class="badge bg-info text-dark">閲覧者</span></td>
-              <td><span class="badge badge-active">有効</span></td>
-              <td>
-                <button class="btn btn-outline-primary btn-action me-1" data-bs-toggle="modal" data-bs-target="#userModal">
-                  <i class="bi bi-pencil-square"></i>
-                </button>
-                <button class="btn btn-outline-danger btn-action" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                  <i class="bi bi-trash"></i>
-                </button>
-              </td>
-            </tr>
-            <tr>
-              <td>U004</td>
-              <td>高橋 美咲</td>
-              <td>takahashi.misaki@example.com</td>
-              <td><span class="badge bg-warning text-dark">編集者</span></td>
-              <td><span class="badge badge-active">有効</span></td>
-              <td>
-                <button class="btn btn-outline-primary btn-action me-1" data-bs-toggle="modal" data-bs-target="#userModal">
-                  <i class="bi bi-pencil-square"></i>
-                </button>
-                <button class="btn btn-outline-danger btn-action" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                  <i class="bi bi-trash"></i>
-                </button>
-              </td>
-            </tr>
-            <tr>
-              <td>U005</td>
-              <td>渡辺 健二</td>
-              <td>watanabe.kenji@example.com</td>
-              <td><span class="badge bg-info text-dark">閲覧者</span></td>
-              <td><span class="badge badge-inactive">無効</span></td>
-              <td>
-                <button class="btn btn-outline-primary btn-action me-1" data-bs-toggle="modal" data-bs-target="#userModal">
-                  <i class="bi bi-pencil-square"></i>
-                </button>
-                <button class="btn btn-outline-danger btn-action" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                  <i class="bi bi-trash"></i>
-                </button>
-              </td>
-            </tr>
+          <tbody id="userTableBody">
           </tbody>
         </table>
       </div>
@@ -203,16 +128,7 @@
       <!-- Pagination -->
       <div class="pagination-area">
         <nav>
-          <ul class="pagination pagination-sm mb-0">
-            <li class="page-item disabled">
-              <a class="page-link" href="#"><i class="bi bi-chevron-left"></i></a>
-            </li>
-            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-            <li class="page-item"><a class="page-link" href="#">2</a></li>
-            <li class="page-item"><a class="page-link" href="#">3</a></li>
-            <li class="page-item">
-              <a class="page-link" href="#"><i class="bi bi-chevron-right"></i></a>
-            </li>
+          <ul class="pagination pagination-sm mb-0" id="pagination">
           </ul>
         </nav>
       </div>
@@ -231,23 +147,29 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
         </div>
         <div class="modal-body">
-          <form>
-            <div class="mb-3">
+          <form id="userForm">
+            <input type="hidden" id="formMode" value="create">
+            <div class="mb-3" id="idFieldGroup">
               <label class="form-label required">ユーザーID</label>
-              <input type="text" class="form-control" placeholder="例: U006">
+              <input type="text" class="form-control" id="formId" placeholder="例: U006">
               <div class="form-text">新規登録時のみ入力してください。</div>
             </div>
             <div class="mb-3">
               <label class="form-label required">ユーザー名</label>
-              <input type="text" class="form-control" placeholder="例: 山田 太郎">
+              <input type="text" class="form-control" id="formUserName" placeholder="例: 山田 太郎">
             </div>
             <div class="mb-3">
               <label class="form-label required">メールアドレス</label>
-              <input type="email" class="form-control" placeholder="例: yamada@example.com">
+              <input type="email" class="form-control" id="formEmail" placeholder="例: yamada@example.com">
+            </div>
+            <div class="mb-3">
+              <label class="form-label" id="passwordLabel">パスワード</label>
+              <input type="password" class="form-control" id="formPassword" placeholder="パスワードを入力">
+              <div class="form-text" id="passwordHelp">編集時は空欄のままにすると既存のパスワードを維持します。</div>
             </div>
             <div class="mb-3">
               <label class="form-label required">権限</label>
-              <select class="form-select">
+              <select class="form-select" id="formRole">
                 <option value="">選択してください</option>
                 <option value="admin">管理者</option>
                 <option value="editor">編集者</option>
@@ -257,8 +179,8 @@
             <div class="mb-3">
               <label class="form-label">ステータス</label>
               <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="statusSwitch" checked>
-                <label class="form-check-label" for="statusSwitch">有効</label>
+                <input class="form-check-input" type="checkbox" id="formIsActive" checked>
+                <label class="form-check-label" for="formIsActive">有効</label>
               </div>
             </div>
           </form>
@@ -267,7 +189,7 @@
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
             <i class="bi bi-x-lg me-1"></i>キャンセル
           </button>
-          <button type="button" class="btn btn-primary">
+          <button type="button" class="btn btn-primary" id="btnSaveUser">
             <i class="bi bi-check-lg me-1"></i>保存
           </button>
         </div>
@@ -291,7 +213,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">キャンセル</button>
-          <button type="button" class="btn btn-danger btn-sm">
+          <button type="button" class="btn btn-danger btn-sm" id="btnConfirmDelete">
             <i class="bi bi-trash me-1"></i>削除する
           </button>
         </div>
@@ -307,6 +229,230 @@
       document.getElementById('sidebar').classList.toggle('collapsed');
       document.getElementById('main-content').classList.toggle('expanded');
     });
+  </script>
+  <!-- User CRUD Script -->
+  <script>
+    const API_BASE = '/api/users';
+    let currentPage = 1;
+    const pageSize = 10;
+    let deleteTargetId = null;
+
+    const userModal = new bootstrap.Modal(document.getElementById('userModal'));
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+
+    // --- 権限バッジ ---
+    function roleBadge(role) {
+      switch (role) {
+        case 'admin':  return '<span class="badge bg-danger">管理者</span>';
+        case 'editor': return '<span class="badge bg-warning text-dark">編集者</span>';
+        case 'viewer': return '<span class="badge bg-info text-dark">閲覧者</span>';
+        default:       return '<span class="badge bg-secondary">' + role + '</span>';
+      }
+    }
+
+    // --- ステータスバッジ ---
+    function statusBadge(isActive) {
+      return isActive
+        ? '<span class="badge badge-active">有効</span>'
+        : '<span class="badge badge-inactive">無効</span>';
+    }
+
+    // --- ユーザー一覧取得 ---
+    async function loadUsers(page) {
+      currentPage = page || 1;
+      const params = new URLSearchParams();
+      const id = document.getElementById('searchId').value.trim();
+      const userName = document.getElementById('searchUserName').value.trim();
+      const role = document.getElementById('searchRole').value;
+
+      if (id) params.set('id', id);
+      if (userName) params.set('userName', userName);
+      if (role) params.set('role', role);
+      params.set('page', currentPage);
+      params.set('pageSize', pageSize);
+
+      try {
+        const res = await fetch(API_BASE + '?' + params.toString());
+        if (!res.ok) throw new Error('データの取得に失敗しました。');
+        const data = await res.json();
+        renderTable(data);
+        renderPagination(data);
+        renderInfoBar(data);
+      } catch (e) {
+        alert(e.message);
+      }
+    }
+
+    // --- テーブル描画 ---
+    function renderTable(data) {
+      const tbody = document.getElementById('userTableBody');
+      if (data.items.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">データがありません</td></tr>';
+        return;
+      }
+      tbody.innerHTML = data.items.map(u => `
+        <tr>
+          <td>${u.id}</td>
+          <td>${u.userName}</td>
+          <td>${u.email}</td>
+          <td>${roleBadge(u.role)}</td>
+          <td>${statusBadge(u.isActive)}</td>
+          <td>
+            <button class="btn btn-outline-primary btn-action me-1" onclick="openEditModal('${u.id}')">
+              <i class="bi bi-pencil-square"></i>
+            </button>
+            <button class="btn btn-outline-danger btn-action" onclick="openDeleteModal('${u.id}')">
+              <i class="bi bi-trash"></i>
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // --- 件数表示 ---
+    function renderInfoBar(data) {
+      document.getElementById('totalCount').textContent = data.totalCount;
+      const start = (data.page - 1) * data.pageSize + 1;
+      const end = Math.min(data.page * data.pageSize, data.totalCount);
+      document.getElementById('showingRange').textContent =
+        data.totalCount > 0 ? start + ' - ' + end + ' 件を表示' : '0 件を表示';
+    }
+
+    // --- ページネーション描画 ---
+    function renderPagination(data) {
+      const totalPages = Math.ceil(data.totalCount / data.pageSize);
+      const ul = document.getElementById('pagination');
+      if (totalPages <= 1) { ul.innerHTML = ''; return; }
+
+      let html = '';
+      // 前へ
+      html += '<li class="page-item ' + (data.page <= 1 ? 'disabled' : '') + '">';
+      html += '<a class="page-link" href="#" onclick="loadUsers(' + (data.page - 1) + '); return false;"><i class="bi bi-chevron-left"></i></a></li>';
+
+      for (let i = 1; i <= totalPages; i++) {
+        html += '<li class="page-item ' + (i === data.page ? 'active' : '') + '">';
+        html += '<a class="page-link" href="#" onclick="loadUsers(' + i + '); return false;">' + i + '</a></li>';
+      }
+
+      // 次へ
+      html += '<li class="page-item ' + (data.page >= totalPages ? 'disabled' : '') + '">';
+      html += '<a class="page-link" href="#" onclick="loadUsers(' + (data.page + 1) + '); return false;"><i class="bi bi-chevron-right"></i></a></li>';
+
+      ul.innerHTML = html;
+    }
+
+    // --- 新規追加モーダル ---
+    document.getElementById('btnAddUser').addEventListener('click', function () {
+      document.getElementById('formMode').value = 'create';
+      document.getElementById('userModalLabel').innerHTML = '<i class="bi bi-person-plus-fill me-2"></i>ユーザー登録';
+      document.getElementById('idFieldGroup').style.display = '';
+      document.getElementById('formId').value = '';
+      document.getElementById('formId').disabled = false;
+      document.getElementById('formUserName').value = '';
+      document.getElementById('formEmail').value = '';
+      document.getElementById('formPassword').value = '';
+      document.getElementById('formRole').value = '';
+      document.getElementById('formIsActive').checked = true;
+      document.getElementById('passwordLabel').classList.add('required');
+      document.getElementById('passwordHelp').style.display = 'none';
+      userModal.show();
+    });
+
+    // --- 編集モーダル ---
+    async function openEditModal(id) {
+      try {
+        const res = await fetch(API_BASE + '/' + id);
+        if (!res.ok) throw new Error('ユーザー情報の取得に失敗しました。');
+        const user = await res.json();
+
+        document.getElementById('formMode').value = 'edit';
+        document.getElementById('userModalLabel').innerHTML = '<i class="bi bi-pencil-square me-2"></i>ユーザー編集';
+        document.getElementById('idFieldGroup').style.display = 'none';
+        document.getElementById('formId').value = user.id;
+        document.getElementById('formId').disabled = true;
+        document.getElementById('formUserName').value = user.userName;
+        document.getElementById('formEmail').value = user.email;
+        document.getElementById('formPassword').value = '';
+        document.getElementById('formRole').value = user.role;
+        document.getElementById('formIsActive').checked = user.isActive;
+        document.getElementById('passwordLabel').classList.remove('required');
+        document.getElementById('passwordHelp').style.display = '';
+        userModal.show();
+      } catch (e) {
+        alert(e.message);
+      }
+    }
+
+    // --- 保存 ---
+    document.getElementById('btnSaveUser').addEventListener('click', async function () {
+      const mode = document.getElementById('formMode').value;
+      const id = document.getElementById('formId').value.trim();
+      const userName = document.getElementById('formUserName').value.trim();
+      const email = document.getElementById('formEmail').value.trim();
+      const password = document.getElementById('formPassword').value;
+      const role = document.getElementById('formRole').value;
+      const isActive = document.getElementById('formIsActive').checked;
+
+      try {
+        let res;
+        if (mode === 'create') {
+          res = await fetch(API_BASE, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, userName, email, password, role, isActive }),
+          });
+        } else {
+          res = await fetch(API_BASE + '/' + id, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userName, email, password: password || null, role, isActive }),
+          });
+        }
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => null);
+          throw new Error(err?.message || err?.title || '保存に失敗しました。');
+        }
+
+        userModal.hide();
+        loadUsers(mode === 'create' ? 1 : currentPage);
+      } catch (e) {
+        alert(e.message);
+      }
+    });
+
+    // --- 削除確認モーダル ---
+    function openDeleteModal(id) {
+      deleteTargetId = id;
+      deleteModal.show();
+    }
+
+    document.getElementById('btnConfirmDelete').addEventListener('click', async function () {
+      if (!deleteTargetId) return;
+      try {
+        const res = await fetch(API_BASE + '/' + deleteTargetId, { method: 'DELETE' });
+        if (!res.ok) throw new Error('削除に失敗しました。');
+        deleteModal.hide();
+        loadUsers(currentPage);
+      } catch (e) {
+        alert(e.message);
+      }
+    });
+
+    // --- 検索・クリア ---
+    document.getElementById('btnSearch').addEventListener('click', function () {
+      loadUsers(1);
+    });
+
+    document.getElementById('btnClear').addEventListener('click', function () {
+      document.getElementById('searchId').value = '';
+      document.getElementById('searchUserName').value = '';
+      document.getElementById('searchRole').value = '';
+      loadUsers(1);
+    });
+
+    // --- 初期ロード ---
+    loadUsers(1);
   </script>
 </body>
 </html>

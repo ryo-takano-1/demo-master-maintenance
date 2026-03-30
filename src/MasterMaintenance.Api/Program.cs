@@ -3,6 +3,8 @@ using MasterMaintenance.Api.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddControllers();
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -19,4 +21,9 @@ if (app.Environment.IsDevelopment())
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
+app.MapControllers();
+
 app.Run();
+
+// テストプロジェクトから WebApplicationFactory で参照するための partial class
+public partial class Program { }
