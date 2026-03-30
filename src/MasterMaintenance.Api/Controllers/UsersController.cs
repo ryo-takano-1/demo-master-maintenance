@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -82,6 +84,22 @@ public class UsersController(AppDbContext db) : ControllerBase
         db.Users.Add(user);
         await db.SaveChangesAsync();
 
+        // 操作ログ記録
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
+        db.AuditLogs.Add(new AuditLog
+        {
+            UserId = userId,
+            Action = "Create",
+            TableName = "Users",
+            RecordId = user.Id,
+            Changes = JsonSerializer.Serialize(new
+            {
+                user.Id, user.UserName, user.Email, user.Role, user.IsActive,
+            }),
+            CreatedAt = DateTime.UtcNow,
+        });
+        await db.SaveChangesAsync();
+
         return CreatedAtAction(nameof(GetUser), new { id = user.Id }, ToResponse(user));
     }
 
@@ -93,6 +111,12 @@ public class UsersController(AppDbContext db) : ControllerBase
         var user = await db.Users.FindAsync(id);
         if (user is null) return NotFound();
 
+        // 変更前の値を保持
+        var oldUserName = user.UserName;
+        var oldEmail = user.Email;
+        var oldRole = user.Role;
+        var oldIsActive = user.IsActive;
+
         user.UserName = request.UserName;
         user.Email = request.Email;
         user.Role = request.Role;
@@ -102,6 +126,26 @@ public class UsersController(AppDbContext db) : ControllerBase
         if (!string.IsNullOrWhiteSpace(request.Password))
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
+        await db.SaveChangesAsync();
+
+        // 操作ログ記録（差分）
+        var changes = new Dictionary<string, string>();
+        if (oldUserName != request.UserName) changes["UserName"] = $"{oldUserName}\u2192{request.UserName}";
+        if (oldEmail != request.Email) changes["Email"] = $"{oldEmail}\u2192{request.Email}";
+        if (oldRole != request.Role) changes["Role"] = $"{oldRole}\u2192{request.Role}";
+        if (oldIsActive != request.IsActive) changes["IsActive"] = $"{oldIsActive}\u2192{request.IsActive}";
+        if (!string.IsNullOrWhiteSpace(request.Password)) changes["Password"] = "changed";
+
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
+        db.AuditLogs.Add(new AuditLog
+        {
+            UserId = currentUserId,
+            Action = "Update",
+            TableName = "Users",
+            RecordId = id,
+            Changes = JsonSerializer.Serialize(changes),
+            CreatedAt = DateTime.UtcNow,
+        });
         await db.SaveChangesAsync();
 
         return Ok(ToResponse(user));
@@ -115,7 +159,26 @@ public class UsersController(AppDbContext db) : ControllerBase
         var user = await db.Users.FindAsync(id);
         if (user is null) return NotFound();
 
+        // 削除データを保持
+        var deletedData = JsonSerializer.Serialize(new
+        {
+            user.Id, user.UserName, user.Email, user.Role, user.IsActive,
+        });
+
         db.Users.Remove(user);
+        await db.SaveChangesAsync();
+
+        // 操作ログ記録
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
+        db.AuditLogs.Add(new AuditLog
+        {
+            UserId = currentUserId,
+            Action = "Delete",
+            TableName = "Users",
+            RecordId = id,
+            Changes = deletedData,
+            CreatedAt = DateTime.UtcNow,
+        });
         await db.SaveChangesAsync();
 
         return NoContent();

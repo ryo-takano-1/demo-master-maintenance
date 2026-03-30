@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -84,6 +86,22 @@ public class CodesController(AppDbContext db) : ControllerBase
         db.Codes.Add(code);
         await db.SaveChangesAsync();
 
+        // 操作ログ記録
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
+        db.AuditLogs.Add(new AuditLog
+        {
+            UserId = userId,
+            Action = "Create",
+            TableName = "Codes",
+            RecordId = code.Id.ToString(),
+            Changes = JsonSerializer.Serialize(new
+            {
+                code.CodeTypeId, code.Value, code.Name, code.DisplayOrder, code.IsActive,
+            }),
+            CreatedAt = DateTime.UtcNow,
+        });
+        await db.SaveChangesAsync();
+
         // ナビゲーションプロパティをセット
         code.CodeType = codeType;
 
@@ -107,6 +125,13 @@ public class CodesController(AppDbContext db) : ControllerBase
             code.CodeType = codeType;
         }
 
+        // 変更前の値を保持
+        var oldCodeTypeId = code.CodeTypeId;
+        var oldValue = code.Value;
+        var oldName = code.Name;
+        var oldDisplayOrder = code.DisplayOrder;
+        var oldIsActive = code.IsActive;
+
         code.CodeTypeId = request.CodeTypeId;
         code.Value = request.Value;
         code.Name = request.Name;
@@ -114,6 +139,26 @@ public class CodesController(AppDbContext db) : ControllerBase
         code.IsActive = request.IsActive;
         code.UpdatedAt = DateTime.UtcNow;
 
+        await db.SaveChangesAsync();
+
+        // 操作ログ記録（差分）
+        var changes = new Dictionary<string, string>();
+        if (oldCodeTypeId != request.CodeTypeId) changes["CodeTypeId"] = $"{oldCodeTypeId}\u2192{request.CodeTypeId}";
+        if (oldValue != request.Value) changes["Value"] = $"{oldValue}\u2192{request.Value}";
+        if (oldName != request.Name) changes["Name"] = $"{oldName}\u2192{request.Name}";
+        if (oldDisplayOrder != request.DisplayOrder) changes["DisplayOrder"] = $"{oldDisplayOrder}\u2192{request.DisplayOrder}";
+        if (oldIsActive != request.IsActive) changes["IsActive"] = $"{oldIsActive}\u2192{request.IsActive}";
+
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
+        db.AuditLogs.Add(new AuditLog
+        {
+            UserId = currentUserId,
+            Action = "Update",
+            TableName = "Codes",
+            RecordId = id.ToString(),
+            Changes = JsonSerializer.Serialize(changes),
+            CreatedAt = DateTime.UtcNow,
+        });
         await db.SaveChangesAsync();
 
         return Ok(ToResponse(code));
@@ -127,7 +172,26 @@ public class CodesController(AppDbContext db) : ControllerBase
         var code = await db.Codes.FindAsync(id);
         if (code is null) return NotFound();
 
+        // 削除データを保持
+        var deletedData = JsonSerializer.Serialize(new
+        {
+            code.CodeTypeId, code.Value, code.Name, code.DisplayOrder, code.IsActive,
+        });
+
         db.Codes.Remove(code);
+        await db.SaveChangesAsync();
+
+        // 操作ログ記録
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
+        db.AuditLogs.Add(new AuditLog
+        {
+            UserId = currentUserId,
+            Action = "Delete",
+            TableName = "Codes",
+            RecordId = id.ToString(),
+            Changes = deletedData,
+            CreatedAt = DateTime.UtcNow,
+        });
         await db.SaveChangesAsync();
 
         return NoContent();
