@@ -17,21 +17,49 @@ public class UserResponse
 /// <summary>作成リクエスト用 DTO</summary>
 public class CreateUserRequest
 {
-    [Required] public string Id { get; set; } = string.Empty;
-    [Required] public string UserName { get; set; } = string.Empty;
-    [Required] public string Email { get; set; } = string.Empty;
-    [Required] public string Password { get; set; } = string.Empty;
-    [Required] public string Role { get; set; } = string.Empty;
+    [Required]
+    [MaxLength(10)]
+    public string Id { get; set; } = string.Empty;
+
+    [Required]
+    [MaxLength(100)]
+    public string UserName { get; set; } = string.Empty;
+
+    [Required]
+    [EmailAddress]
+    [MaxLength(256)]
+    public string Email { get; set; } = string.Empty;
+
+    [Required]
+    [MinLength(8)]
+    public string Password { get; set; } = string.Empty;
+
+    [Required]
+    [RegularExpression("^(admin|editor|viewer)$", ErrorMessage = "Role は admin, editor, viewer のいずれかを指定してください。")]
+    public string Role { get; set; } = string.Empty;
+
     public bool IsActive { get; set; } = true;
 }
 
 /// <summary>更新リクエスト用 DTO</summary>
 public class UpdateUserRequest
 {
-    [Required] public string UserName { get; set; } = string.Empty;
-    [Required] public string Email { get; set; } = string.Empty;
+    [Required]
+    [MaxLength(100)]
+    public string UserName { get; set; } = string.Empty;
+
+    [Required]
+    [EmailAddress]
+    [MaxLength(256)]
+    public string Email { get; set; } = string.Empty;
+
+    [MinLength(8)]
     public string? Password { get; set; }
-    [Required] public string Role { get; set; } = string.Empty;
+
+    [Required]
+    [RegularExpression("^(admin|editor|viewer)$", ErrorMessage = "Role は admin, editor, viewer のいずれかを指定してください。")]
+    public string Role { get; set; } = string.Empty;
+
     public bool IsActive { get; set; } = true;
 }
 

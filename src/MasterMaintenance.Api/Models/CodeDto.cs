@@ -19,19 +19,43 @@ public class CodeResponse
 /// <summary>コード作成リクエスト DTO</summary>
 public class CreateCodeRequest
 {
-    [Required] public int CodeTypeId { get; set; }
-    [Required] public string Value { get; set; } = string.Empty;
-    [Required] public string Name { get; set; } = string.Empty;
-    [Required] public int DisplayOrder { get; set; }
+    [Required]
+    [Range(1, int.MaxValue)]
+    public int CodeTypeId { get; set; }
+
+    [Required]
+    [MaxLength(50)]
+    public string Value { get; set; } = string.Empty;
+
+    [Required]
+    [MaxLength(100)]
+    public string Name { get; set; } = string.Empty;
+
+    [Required]
+    [Range(1, int.MaxValue)]
+    public int DisplayOrder { get; set; }
+
     public bool IsActive { get; set; } = true;
 }
 
 /// <summary>コード更新リクエスト DTO</summary>
 public class UpdateCodeRequest
 {
-    [Required] public int CodeTypeId { get; set; }
-    [Required] public string Value { get; set; } = string.Empty;
-    [Required] public string Name { get; set; } = string.Empty;
-    [Required] public int DisplayOrder { get; set; }
+    [Required]
+    [Range(1, int.MaxValue)]
+    public int CodeTypeId { get; set; }
+
+    [Required]
+    [MaxLength(50)]
+    public string Value { get; set; } = string.Empty;
+
+    [Required]
+    [MaxLength(100)]
+    public string Name { get; set; } = string.Empty;
+
+    [Required]
+    [Range(1, int.MaxValue)]
+    public int DisplayOrder { get; set; }
+
     public bool IsActive { get; set; } = true;
 }

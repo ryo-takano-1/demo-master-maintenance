@@ -1,5 +1,7 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MasterMaintenance.Api.Data;
@@ -7,6 +9,27 @@ using MasterMaintenance.Api.Data;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+
+// CORS 設定
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        if (builder.Environment.IsDevelopment())
+        {
+            policy.AllowAnyOrigin()
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
+        }
+        else
+        {
+            // 本番環境では必要に応じてオリジンを制限
+            policy.AllowAnyOrigin()
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
+        }
+    });
+});
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -50,8 +73,32 @@ if (app.Environment.IsDevelopment())
     db.Database.Migrate();
 }
 
+// グローバル例外ハンドラ
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.ContentType = "application/problem+json";
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+
+        var exceptionFeature = context.Features.Get<IExceptionHandlerFeature>();
+        var isDev = context.RequestServices.GetRequiredService<IWebHostEnvironment>().IsDevelopment();
+
+        var problem = new ProblemDetails
+        {
+            Status = StatusCodes.Status500InternalServerError,
+            Title = "サーバーエラーが発生しました。",
+            Detail = isDev ? exceptionFeature?.Error?.ToString() : "予期しないエラーが発生しました。しばらく経ってから再度お試しください。",
+        };
+
+        await context.Response.WriteAsJsonAsync(problem);
+    });
+});
+
 app.UseDefaultFiles();
 app.UseStaticFiles();
+
+app.UseCors();
 
 app.UseAuthentication();
 app.UseAuthorization();

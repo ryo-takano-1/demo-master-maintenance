@@ -15,13 +15,25 @@ public class CodeTypeResponse
 /// <summary>コード種別作成リクエスト DTO</summary>
 public class CreateCodeTypeRequest
 {
-    [Required] public string Key { get; set; } = string.Empty;
-    [Required] public string Name { get; set; } = string.Empty;
+    [Required]
+    [MaxLength(50)]
+    [RegularExpression("^[A-Z_]+$", ErrorMessage = "Key は大文字英字とアンダースコアのみ使用できます。")]
+    public string Key { get; set; } = string.Empty;
+
+    [Required]
+    [MaxLength(100)]
+    public string Name { get; set; } = string.Empty;
 }
 
 /// <summary>コード種別更新リクエスト DTO</summary>
 public class UpdateCodeTypeRequest
 {
-    [Required] public string Key { get; set; } = string.Empty;
-    [Required] public string Name { get; set; } = string.Empty;
+    [Required]
+    [MaxLength(50)]
+    [RegularExpression("^[A-Z_]+$", ErrorMessage = "Key は大文字英字とアンダースコアのみ使用できます。")]
+    public string Key { get; set; } = string.Empty;
+
+    [Required]
+    [MaxLength(100)]
+    public string Name { get; set; } = string.Empty;
 }
