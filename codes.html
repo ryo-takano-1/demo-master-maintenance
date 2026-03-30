@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>マスタメンテナンス - コードマスタ</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+
+  <!-- ===== Header ===== -->
+  <nav class="navbar navbar-expand navbar-dark bg-dark fixed-top">
+    <div class="container-fluid">
+      <button class="btn btn-dark me-2" id="sidebarToggle">
+        <i class="bi bi-list"></i>
+      </button>
+      <a class="navbar-brand" href="index.html">
+        <i class="bi bi-gear-fill me-1"></i>マスタメンテナンス
+      </a>
+      <div class="ms-auto d-flex align-items-center">
+        <span class="text-light small me-2">
+          <i class="bi bi-person-circle me-1"></i>管理者ユーザー
+        </span>
+        <a href="#" class="btn btn-outline-light btn-sm">
+          <i class="bi bi-box-arrow-right"></i> ログアウト
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Spacer for fixed navbar -->
+  <div style="height: var(--header-height);"></div>
+
+  <!-- ===== Sidebar ===== -->
+  <nav id="sidebar">
+    <div class="sidebar-heading">メニュー</div>
+    <ul class="nav flex-column">
+      <li class="nav-item">
+        <a class="nav-link" href="index.html">
+          <i class="bi bi-people-fill"></i>ユーザーマスタ
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link active" href="codes.html">
+          <i class="bi bi-tags-fill"></i>コードマスタ
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- ===== Main Content ===== -->
+  <div id="main-content">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <h4><i class="bi bi-tags-fill me-2"></i>コードマスタ</h4>
+      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#codeModal">
+        <i class="bi bi-plus-lg me-1"></i>新規追加
+      </button>
+    </div>
+
+    <!-- Search Area -->
+    <div class="search-area">
+      <form>
+        <div class="row g-3 align-items-end">
+          <div class="col-md-3">
+            <label class="form-label">コード種別</label>
+            <select class="form-select form-select-sm">
+              <option value="">すべて</option>
+              <option value="DEPT">部門</option>
+              <option value="ROLE">役職</option>
+              <option value="STATUS">ステータス</option>
+              <option value="REGION">地域</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">コード値</label>
+            <input type="text" class="form-control form-control-sm" placeholder="コード値で検索">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">コード名</label>
+            <input type="text" class="form-control form-control-sm" placeholder="コード名で検索">
+          </div>
+          <div class="col-md-3">
+            <button type="button" class="btn btn-outline-secondary btn-sm me-1">
+              <i class="bi bi-search me-1"></i>検索
+            </button>
+            <button type="button" class="btn btn-outline-secondary btn-sm">
+              <i class="bi bi-arrow-counterclockwise me-1"></i>クリア
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Table -->
+    <div class="table-card">
+      <div class="table-info-bar">
+        <span>全 <strong>8</strong> 件</span>
+        <span>1 - 8 件を表示</span>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-striped table-hover">
+          <thead>
+            <tr>
+              <th style="width: 120px;">コード種別</th>
+              <th style="width: 100px;">コード値</th>
+              <th>コード名</th>
+              <th style="width: 80px;">表示順</th>
+              <th style="width: 80px;">状態</th>
+              <th style="width: 130px;">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge bg-primary">部門</span></td>
+              <td>DEPT_01</td>
+              <td>営業部</td>
+              <td class="text-center">1</td>
+              <td><span class="badge badge-active">有効</span></td>
+              <td>
+                <button class="btn btn-outline-primary btn-action me-1" data-bs-toggle="modal" data-bs-target="#codeModal">
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+                <button class="btn btn-outline-danger btn-action" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td><span class="badge bg-primary">部門</span></td>
+              <td>DEPT_02</td>
+              <td>開発部</td>
+              <td class="text-center">2</td>
+              <td><span class="badge badge-active">有効</span></td>
+              <td>
+                <button class="btn btn-outline-primary btn-action me-1" data-bs-toggle="modal" data-bs-target="#codeModal">
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+                <button class="btn btn-outline-danger btn-action" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td><span class="badge bg-primary">部門</span></td>
+              <td>DEPT_03</td>
+              <td>総務部</td>
+              <td class="text-center">3</td>
+              <td><span class="badge badge-active">有効</span></td>
+              <td>
+                <button class="btn btn-outline-primary btn-action me-1" data-bs-toggle="modal" data-bs-target="#codeModal">
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+                <button class="btn btn-outline-danger btn-action" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td><span class="badge bg-success">役職</span></td>
+              <td>ROLE_01</td>
+              <td>部長</td>
+              <td class="text-center">1</td>
+              <td><span class="badge badge-active">有効</span></td>
+              <td>
+                <button class="btn btn-outline-primary btn-action me-1" data-bs-toggle="modal" data-bs-target="#codeModal">
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+                <button class="btn btn-outline-danger btn-action" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td><span class="badge bg-success">役職</span></td>
+              <td>ROLE_02</td>
+              <td>課長</td>
+              <td class="text-center">2</td>
+              <td><span class="badge badge-active">有効</span></td>
+              <td>
+                <button class="btn btn-outline-primary btn-action me-1" data-bs-toggle="modal" data-bs-target="#codeModal">
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+                <button class="btn btn-outline-danger btn-action" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td><span class="badge bg-success">役職</span></td>
+              <td>ROLE_03</td>
+              <td>一般社員</td>
+              <td class="text-center">3</td>
+              <td><span class="badge badge-active">有効</span></td>
+              <td>
+                <button class="btn btn-outline-primary btn-action me-1" data-bs-toggle="modal" data-bs-target="#codeModal">
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+                <button class="btn btn-outline-danger btn-action" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td><span class="badge bg-warning text-dark">ステータス</span></td>
+              <td>STATUS_01</td>
+              <td>申請中</td>
+              <td class="text-center">1</td>
+              <td><span class="badge badge-active">有効</span></td>
+              <td>
+                <button class="btn btn-outline-primary btn-action me-1" data-bs-toggle="modal" data-bs-target="#codeModal">
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+                <button class="btn btn-outline-danger btn-action" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td><span class="badge bg-warning text-dark">ステータス</span></td>
+              <td>STATUS_02</td>
+              <td>承認済</td>
+              <td class="text-center">2</td>
+              <td><span class="badge badge-inactive">無効</span></td>
+              <td>
+                <button class="btn btn-outline-primary btn-action me-1" data-bs-toggle="modal" data-bs-target="#codeModal">
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+                <button class="btn btn-outline-danger btn-action" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination-area">
+        <nav>
+          <ul class="pagination pagination-sm mb-0">
+            <li class="page-item disabled">
+              <a class="page-link" href="#"><i class="bi bi-chevron-left"></i></a>
+            </li>
+            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item">
+              <a class="page-link" href="#"><i class="bi bi-chevron-right"></i></a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+  </div><!-- /main-content -->
+
+  <!-- ===== Code Edit Modal ===== -->
+  <div class="modal fade" id="codeModal" tabindex="-1" aria-labelledby="codeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="codeModalLabel">
+            <i class="bi bi-tag-fill me-2"></i>コード登録・編集
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="mb-3">
+              <label class="form-label required">コード種別</label>
+              <select class="form-select">
+                <option value="">選択してください</option>
+                <option value="DEPT">部門</option>
+                <option value="ROLE">役職</option>
+                <option value="STATUS">ステータス</option>
+                <option value="REGION">地域</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label required">コード値</label>
+              <input type="text" class="form-control" placeholder="例: DEPT_04">
+              <div class="form-text">英数字とアンダースコアのみ使用できます。</div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label required">コード名</label>
+              <input type="text" class="form-control" placeholder="例: 人事部">
+            </div>
+            <div class="mb-3">
+              <label class="form-label required">表示順</label>
+              <input type="number" class="form-control" placeholder="例: 4" min="1">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">状態</label>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="codeStatusSwitch" checked>
+                <label class="form-check-label" for="codeStatusSwitch">有効</label>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="bi bi-x-lg me-1"></i>キャンセル
+          </button>
+          <button type="button" class="btn btn-primary">
+            <i class="bi bi-check-lg me-1"></i>保存
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Delete Confirm Modal ===== -->
+  <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteModalLabel">
+            <i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>削除確認
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+        </div>
+        <div class="modal-body">
+          <p>このコードを削除してもよろしいですか？</p>
+          <p class="text-muted small mb-0">この操作は取り消せません。</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">キャンセル</button>
+          <button type="button" class="btn btn-danger btn-sm">
+            <i class="bi bi-trash me-1"></i>削除する
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap 5 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Sidebar Toggle (minimal JS for design) -->
+  <script>
+    document.getElementById('sidebarToggle').addEventListener('click', function () {
+      document.getElementById('sidebar').classList.toggle('collapsed');
+      document.getElementById('main-content').classList.toggle('expanded');
+    });
+  </script>
+</body>
+</html>
