@@ -28,7 +28,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## ページ一覧
 
 - `index.html` — ユーザーマスタ
-- `codes.html` — コードマスタ
+- `codes.html` — コードマスタ（コード種別の管理もこの画面内で完結）
+- `audit-logs.html` — 操作ログ（一覧 + 期間指定エクスポート）
 
 ## 規約
 
