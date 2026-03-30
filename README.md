@@ -4,7 +4,7 @@
 
 ## 現在の状態
 
-.NET Web API バックエンド構築中（Phase 7 完了）。CRUD API + JWT 認証 + ロールベース認可 + 操作ログが稼働中。
+全 Phase 完了。CRUD API + JWT 認証 + ロールベース認可 + 操作ログ + セキュリティレビュー対応済み。
 
 ## 画面一覧
 
@@ -12,7 +12,7 @@
 |------|----------|------|
 | ログイン | `login.html` | メール + パスワードで JWT 認証 |
 | ユーザーマスタ | `index.html` | ユーザーの一覧・検索・登録・編集・削除 |
-| コードマスタ | `codes.html` | コード値の一覧・検索・登録・編集・削除、コード種別の管理 |
+| コードマスタ | `codes.html` | コード値の一覧・検索・登録・編集・削除、コード種別の管理（バッジ色指定対応） |
 | 操作ログ | `audit-logs.html` | 操作ログの一覧・検索・期間指定エクスポート（admin のみ） |
 
 ## 技術スタック
@@ -20,7 +20,7 @@
 - **バックエンド**: .NET 10 Web API + Entity Framework Core + SQLite
 - **フロントエンド**: HTML5 + Bootstrap 5.3.3（CDN） + vanilla JavaScript
 - **認証**: JWT Bearer
-- **テスト**: xUnit + WebApplicationFactory（30件）
+- **テスト**: xUnit + WebApplicationFactory（32件）
 
 ## 開発方法
 
@@ -36,7 +36,7 @@ dotnet test
 dotnet build
 ```
 
-`dotnet run` 後、`http://localhost:5062` でアクセス（初回起動時に DB 自動作成 + シードデータ投入）。
+`dotnet run` 後、`http://localhost:5216` でアクセス（初回起動時に DB 自動作成 + シードデータ投入）。
 
 ### 初期ユーザー
 
@@ -53,9 +53,9 @@ dotnet build
 | POST | `/api/auth/login` | 不要 | ログイン（JWT 発行） |
 | GET | `/api/users` | 全ロール | ユーザー一覧 |
 | POST/DELETE | `/api/users/{id}` | admin | ユーザー作成・削除 |
-| PUT | `/api/users/{id}` | admin, editor | ユーザー更新 |
+| PUT | `/api/users/{id}` | admin, editor | ユーザー更新（ロール変更は admin のみ） |
 | GET | `/api/code-types` | 全ロール | コード種別一覧 |
-| POST/PUT/DELETE | `/api/code-types/{id}` | admin, editor | コード種別 CUD |
+| POST/PUT/DELETE | `/api/code-types/{id}` | admin, editor | コード種別 CUD（バッジ色含む） |
 | GET | `/api/codes` | 全ロール | コード一覧 |
 | POST/PUT/DELETE | `/api/codes/{id}` | admin, editor | コード CUD |
 | GET | `/api/audit-logs` | admin | 操作ログ一覧 |
