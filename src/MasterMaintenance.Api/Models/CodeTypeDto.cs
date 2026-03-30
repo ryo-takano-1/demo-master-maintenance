@@ -8,6 +8,7 @@ public class CodeTypeResponse
     public int Id { get; set; }
     public string Key { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
+    public string Color { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 }
@@ -23,6 +24,10 @@ public class CreateCodeTypeRequest
     [Required]
     [MaxLength(100)]
     public string Name { get; set; } = string.Empty;
+
+    [Required]
+    [MaxLength(20)]
+    public string Color { get; set; } = "secondary";
 }
 
 /// <summary>コード種別更新リクエスト DTO</summary>
@@ -36,4 +41,8 @@ public class UpdateCodeTypeRequest
     [Required]
     [MaxLength(100)]
     public string Name { get; set; } = string.Empty;
+
+    [Required]
+    [MaxLength(20)]
+    public string Color { get; set; } = "secondary";
 }

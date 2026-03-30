@@ -202,6 +202,7 @@ public class CodesController(AppDbContext db) : ControllerBase
         Id = c.Id,
         CodeTypeId = c.CodeTypeId,
         CodeTypeName = c.CodeType.Name,
+        CodeTypeColor = c.CodeType.Color,
         Value = c.Value,
         Name = c.Name,
         DisplayOrder = c.DisplayOrder,

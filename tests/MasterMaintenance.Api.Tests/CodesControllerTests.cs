@@ -70,6 +70,7 @@ public class CodesControllerTests : IClassFixture<TestWebApplicationFactory>, IA
         Assert.Equal("DEPT_99", code.Value);
         Assert.Equal("テスト部門", code.Name);
         Assert.Equal("部門", code.CodeTypeName);
+        Assert.Equal("primary", code.CodeTypeColor);
     }
 
     [Fact]

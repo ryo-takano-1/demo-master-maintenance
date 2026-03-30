@@ -47,6 +47,7 @@ public class CodeTypesController(AppDbContext db) : ControllerBase
         {
             Key = request.Key,
             Name = request.Name,
+            Color = request.Color,
             CreatedAt = now,
             UpdatedAt = now,
         };
@@ -85,9 +86,11 @@ public class CodeTypesController(AppDbContext db) : ControllerBase
         // 変更前の値を保持
         var oldKey = codeType.Key;
         var oldName = codeType.Name;
+        var oldColor = codeType.Color;
 
         codeType.Key = request.Key;
         codeType.Name = request.Name;
+        codeType.Color = request.Color;
         codeType.UpdatedAt = DateTime.UtcNow;
 
         await db.SaveChangesAsync();
@@ -96,6 +99,7 @@ public class CodeTypesController(AppDbContext db) : ControllerBase
         var changes = new Dictionary<string, string>();
         if (oldKey != request.Key) changes["Key"] = $"{oldKey}\u2192{request.Key}";
         if (oldName != request.Name) changes["Name"] = $"{oldName}\u2192{request.Name}";
+        if (oldColor != request.Color) changes["Color"] = $"{oldColor}\u2192{request.Color}";
 
         var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
         db.AuditLogs.Add(new AuditLog
@@ -152,6 +156,7 @@ public class CodeTypesController(AppDbContext db) : ControllerBase
         Id = ct.Id,
         Key = ct.Key,
         Name = ct.Name,
+        Color = ct.Color,
         CreatedAt = ct.CreatedAt,
         UpdatedAt = ct.UpdatedAt,
     };

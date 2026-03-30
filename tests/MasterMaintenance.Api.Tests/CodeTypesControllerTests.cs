@@ -43,6 +43,7 @@ public class CodeTypesControllerTests : IClassFixture<TestWebApplicationFactory>
         {
             Key = "PRIORITY",
             Name = "優先度",
+            Color = "danger",
         };
 
         var response = await _client.PostAsJsonAsync("/api/code-types", request);
@@ -58,7 +59,7 @@ public class CodeTypesControllerTests : IClassFixture<TestWebApplicationFactory>
     public async Task UpdateCodeType_Returns200()
     {
         // テスト用にコード種別を作成
-        var createReq = new CreateCodeTypeRequest { Key = "UPD_TEST", Name = "更新前" };
+        var createReq = new CreateCodeTypeRequest { Key = "UPD_TEST", Name = "更新前", Color = "primary" };
         var createRes = await _client.PostAsJsonAsync("/api/code-types", createReq);
         var created = await createRes.Content.ReadFromJsonAsync<CodeTypeResponse>();
 
@@ -66,6 +67,7 @@ public class CodeTypesControllerTests : IClassFixture<TestWebApplicationFactory>
         {
             Key = "UPD_TEST",
             Name = "更新後",
+            Color = "success",
         };
 
         var response = await _client.PutAsJsonAsync($"/api/code-types/{created!.Id}", request);
@@ -80,7 +82,7 @@ public class CodeTypesControllerTests : IClassFixture<TestWebApplicationFactory>
     public async Task DeleteCodeType_Returns204()
     {
         // 使用されていないコード種別を作成
-        var createReq = new CreateCodeTypeRequest { Key = "DEL_TEST", Name = "削除対象" };
+        var createReq = new CreateCodeTypeRequest { Key = "DEL_TEST", Name = "削除対象", Color = "secondary" };
         var createRes = await _client.PostAsJsonAsync("/api/code-types", createReq);
         var created = await createRes.Content.ReadFromJsonAsync<CodeTypeResponse>();
 

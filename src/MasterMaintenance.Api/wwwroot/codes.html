@@ -233,16 +233,43 @@
         </div>
         <div class="modal-body">
           <!-- 追加/編集フォーム -->
-          <div class="d-flex gap-2 mb-3" id="ctFormArea">
+          <style>
+            .color-palette { display: flex; gap: 6px; flex-wrap: wrap; }
+            .color-swatch {
+              width: 28px; height: 28px; border-radius: 50%; border: 2px solid transparent;
+              cursor: pointer; display: flex; align-items: center; justify-content: center;
+              font-size: 14px; color: #fff; transition: border-color .15s, transform .15s;
+            }
+            .color-swatch:hover { transform: scale(1.15); }
+            .color-swatch.selected { border-color: #212529; box-shadow: 0 0 0 2px #fff, 0 0 0 4px #212529; }
+            .color-swatch .bi-check-lg { display: none; }
+            .color-swatch.selected .bi-check-lg { display: inline; }
+          </style>
+          <div id="ctFormArea">
             <input type="hidden" id="ctFormId" value="">
-            <input type="text" class="form-control form-control-sm" id="ctFormKey" placeholder="種別キー（例: CATEGORY）">
-            <input type="text" class="form-control form-control-sm" id="ctFormName" placeholder="表示名（例: カテゴリ）">
-            <button type="button" class="btn btn-primary btn-sm flex-shrink-0" id="btnSaveCodeType">
-              <i class="bi bi-plus-lg" id="ctBtnIcon"></i>
-            </button>
-            <button type="button" class="btn btn-outline-secondary btn-sm flex-shrink-0 d-none" id="btnCancelEditCodeType">
-              <i class="bi bi-x-lg"></i>
-            </button>
+            <input type="hidden" id="ctFormColor" value="secondary">
+            <div class="d-flex gap-2 mb-2">
+              <input type="text" class="form-control form-control-sm" id="ctFormKey" placeholder="種別キー（例: CATEGORY）">
+              <input type="text" class="form-control form-control-sm" id="ctFormName" placeholder="表示名（例: カテゴリ）">
+              <button type="button" class="btn btn-primary btn-sm flex-shrink-0" id="btnSaveCodeType">
+                <i class="bi bi-plus-lg" id="ctBtnIcon"></i>
+              </button>
+              <button type="button" class="btn btn-outline-secondary btn-sm flex-shrink-0 d-none" id="btnCancelEditCodeType">
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </div>
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <span class="small text-muted flex-shrink-0">バッジ色:</span>
+              <div class="color-palette" id="ctColorPalette">
+                <span class="color-swatch bg-primary" data-color="primary" title="青"><i class="bi bi-check-lg"></i></span>
+                <span class="color-swatch bg-success" data-color="success" title="緑"><i class="bi bi-check-lg"></i></span>
+                <span class="color-swatch bg-danger" data-color="danger" title="赤"><i class="bi bi-check-lg"></i></span>
+                <span class="color-swatch bg-warning" data-color="warning" title="黄"><i class="bi bi-check-lg text-dark"></i></span>
+                <span class="color-swatch bg-info" data-color="info" title="水色"><i class="bi bi-check-lg text-dark"></i></span>
+                <span class="color-swatch bg-secondary selected" data-color="secondary" title="灰"><i class="bi bi-check-lg"></i></span>
+                <span class="color-swatch bg-dark" data-color="dark" title="黒"><i class="bi bi-check-lg"></i></span>
+              </div>
+            </div>
           </div>
           <div id="ctErrorMsg" class="alert alert-danger small py-1 d-none"></div>
           <!-- 一覧 -->
@@ -251,6 +278,7 @@
               <tr>
                 <th>種別キー</th>
                 <th>表示名</th>
+                <th>バッジ色</th>
                 <th style="width: 80px;">操作</th>
               </tr>
             </thead>
@@ -342,11 +370,14 @@
     const codeTypeModal = new bootstrap.Modal(codeTypeModalEl);
 
     // --- コード種別バッジの色 ---
-    const badgeColors = ['bg-primary', 'bg-success', 'bg-warning text-dark', 'bg-info text-dark', 'bg-secondary', 'bg-danger'];
+    function codeTypeBadgeFromColor(codeTypeName, color) {
+      const c = color || 'secondary';
+      const textClass = c === 'warning' || c === 'info' ? ' text-dark' : '';
+      return '<span class="badge bg-' + c + textClass + '">' + codeTypeName + '</span>';
+    }
     function codeTypeBadge(codeTypeName) {
-      const idx = codeTypes.findIndex(ct => ct.name === codeTypeName);
-      const color = badgeColors[idx % badgeColors.length] || 'bg-secondary';
-      return '<span class="badge ' + color + '">' + codeTypeName + '</span>';
+      const ct = codeTypes.find(ct => ct.name === codeTypeName);
+      return codeTypeBadgeFromColor(codeTypeName, ct ? ct.color : 'secondary');
     }
 
     // --- ステータスバッジ ---
@@ -411,7 +442,7 @@
     function renderCodeTypeTable() {
       const tbody = document.getElementById('codeTypeTableBody');
       if (codeTypes.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted py-3">データがありません</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3">データがありません</td></tr>';
         return;
       }
       tbody.innerHTML = codeTypes.map(ct => {
@@ -423,15 +454,31 @@
         return `<tr>
           <td>${ct.key}</td>
           <td>${ct.name}</td>
+          <td>${codeTypeBadgeFromColor(ct.name, ct.color)}</td>
           <td>${actions}</td>
         </tr>`;
       }).join('');
     }
 
+    function selectColor(color) {
+      document.getElementById('ctFormColor').value = color;
+      document.querySelectorAll('#ctColorPalette .color-swatch').forEach(sw => {
+        sw.classList.toggle('selected', sw.dataset.color === color);
+      });
+    }
+
+    // カラーパレットのクリックイベント
+    document.querySelectorAll('#ctColorPalette .color-swatch').forEach(sw => {
+      sw.addEventListener('click', function () {
+        selectColor(this.dataset.color);
+      });
+    });
+
     function resetCodeTypeForm() {
       document.getElementById('ctFormId').value = '';
       document.getElementById('ctFormKey').value = '';
       document.getElementById('ctFormName').value = '';
+      selectColor('secondary');
       document.getElementById('ctBtnIcon').className = 'bi bi-plus-lg';
       document.getElementById('btnCancelEditCodeType').classList.add('d-none');
       document.getElementById('ctErrorMsg').classList.add('d-none');
@@ -442,6 +489,7 @@
       const id = document.getElementById('ctFormId').value;
       const key = document.getElementById('ctFormKey').value.trim();
       const name = document.getElementById('ctFormName').value.trim();
+      const color = document.getElementById('ctFormColor').value;
 
       if (!key || !name) {
         showCtError('種別キーと表示名を入力してください。');
@@ -454,13 +502,13 @@
           res = await authFetch(CODE_TYPES_API + '/' + id, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ key, name }),
+            body: JSON.stringify({ key, name, color }),
           });
         } else {
           res = await authFetch(CODE_TYPES_API, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ key, name }),
+            body: JSON.stringify({ key, name, color }),
           });
         }
 
@@ -489,6 +537,7 @@
       document.getElementById('ctFormId').value = ct.id;
       document.getElementById('ctFormKey').value = ct.key;
       document.getElementById('ctFormName').value = ct.name;
+      selectColor(ct.color || 'secondary');
       document.getElementById('ctBtnIcon').className = 'bi bi-check-lg';
       document.getElementById('btnCancelEditCodeType').classList.remove('d-none');
       document.getElementById('ctErrorMsg').classList.add('d-none');
@@ -565,7 +614,7 @@
           actions += `<button class="btn btn-outline-danger btn-action" onclick="openDeleteModal(${c.id})"><i class="bi bi-trash"></i></button>`;
         }
         return `<tr>
-          <td>${codeTypeBadge(c.codeTypeName)}</td>
+          <td>${codeTypeBadgeFromColor(c.codeTypeName, c.codeTypeColor)}</td>
           <td>${c.value}</td>
           <td>${c.name}</td>
           <td class="text-center">${c.displayOrder}</td>

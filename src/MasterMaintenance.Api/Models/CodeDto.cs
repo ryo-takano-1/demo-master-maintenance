@@ -8,6 +8,7 @@ public class CodeResponse
     public int Id { get; set; }
     public int CodeTypeId { get; set; }
     public string CodeTypeName { get; set; } = string.Empty;
+    public string CodeTypeColor { get; set; } = string.Empty;
     public string Value { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public int DisplayOrder { get; set; }

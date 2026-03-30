@@ -32,6 +32,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Key).IsRequired().HasMaxLength(50);
             entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Color).IsRequired().HasMaxLength(20);
             entity.HasIndex(e => e.Key).IsUnique();
         });
 
@@ -82,10 +83,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
         // CodeTypes
         modelBuilder.Entity<CodeType>().HasData(
-            new CodeType { Id = 1, Key = "DEPT", Name = "部門", CreatedAt = now, UpdatedAt = now },
-            new CodeType { Id = 2, Key = "ROLE", Name = "役職", CreatedAt = now, UpdatedAt = now },
-            new CodeType { Id = 3, Key = "STATUS", Name = "ステータス", CreatedAt = now, UpdatedAt = now },
-            new CodeType { Id = 4, Key = "REGION", Name = "地域", CreatedAt = now, UpdatedAt = now }
+            new CodeType { Id = 1, Key = "DEPT", Name = "部門", Color = "primary", CreatedAt = now, UpdatedAt = now },
+            new CodeType { Id = 2, Key = "ROLE", Name = "役職", Color = "success", CreatedAt = now, UpdatedAt = now },
+            new CodeType { Id = 3, Key = "STATUS", Name = "ステータス", Color = "warning", CreatedAt = now, UpdatedAt = now },
+            new CodeType { Id = 4, Key = "REGION", Name = "地域", Color = "info", CreatedAt = now, UpdatedAt = now }
         );
 
         // Codes（codes.html のサンプルデータに合わせる）
